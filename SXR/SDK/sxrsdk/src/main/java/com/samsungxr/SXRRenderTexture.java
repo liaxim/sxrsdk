@@ -61,11 +61,12 @@ public class SXRRenderTexture extends SXRTexture {
         mHeight = height;
     }
 
-    public SXRRenderTexture(SXRContext gvrContext, int width, int height, long ptr){
+    SXRRenderTexture(SXRContext gvrContext, int width, int height, long ptr){
         super(gvrContext,ptr);
         mWidth = width;
         mHeight= height;
     }
+
     /**
      * Constructs a SXRRenderTexture for a frame buffer of the specified size,
      * with MSAA enabled at the specified sample count, and with specified color

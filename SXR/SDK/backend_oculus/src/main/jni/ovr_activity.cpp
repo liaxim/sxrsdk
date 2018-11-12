@@ -117,27 +117,6 @@ SXRActivity::SXRActivity(JNIEnv &env, jobject activity, jobject vrAppSettings) :
                                                          mResolveDepthConfiguration, mDepthTextureFormatConfiguration);
     }
 
-RenderTextureInfo *SXRActivity::getRenderTextureInfo(int eye, int index) {
-    // for multiview, eye index would be 2
-    eye = eye % 2;
-    FrameBufferObject fbo = frameBuffer_[eye];
-
-    RenderTextureInfo *renderTextureInfo = new RenderTextureInfo();
-    renderTextureInfo->fboId = fbo.getRenderBufferFBOId(index);
-    renderTextureInfo->fboHeight = fbo.getHeight();
-    renderTextureInfo->fboWidth = fbo.getWidth();
-    renderTextureInfo->multisamples = mMultisamplesConfiguration;
-    renderTextureInfo->useMultiview = use_multiview;
-    renderTextureInfo->views = use_multiview ? 2 : 1;
-    renderTextureInfo->texId = fbo.getColorTexId(index);
-    renderTextureInfo->viewport[0] = x;
-    renderTextureInfo->viewport[1] = y;
-    renderTextureInfo->viewport[2] = width;
-    renderTextureInfo->viewport[3] = height;
-
-    return renderTextureInfo;
-}
-
 void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
     int maxSamples = MSAA::getMaxSampleCount();
     LOGV("SXRActivity::onSurfaceChanged");
@@ -236,6 +215,27 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
         texCoordsTanAnglesMatrix_ = ovrMatrix4f_TanAngleMatrixFromProjection(&projectionMatrix_);
     }
 }
+
+    RenderTextureInfo *SXRActivity::getRenderTextureInfo(int eye, int index) {
+        // for multiview, eye index would be 2
+        eye = eye % 2;
+        FrameBufferObject fbo = frameBuffer_[eye];
+
+        RenderTextureInfo *renderTextureInfo = new RenderTextureInfo();
+        renderTextureInfo->fboId = fbo.getRenderBufferFBOId(index);
+        renderTextureInfo->fboHeight = fbo.getHeight();
+        renderTextureInfo->fboWidth = fbo.getWidth();
+        renderTextureInfo->multisamples = mMultisamplesConfiguration;
+        renderTextureInfo->useMultiview = use_multiview;
+        renderTextureInfo->views = use_multiview ? 2 : 1;
+        renderTextureInfo->texId = fbo.getColorTexId(index);
+        renderTextureInfo->viewport[0] = x;
+        renderTextureInfo->viewport[1] = y;
+        renderTextureInfo->viewport[2] = width;
+        renderTextureInfo->viewport[3] = height;
+
+        return renderTextureInfo;
+    }
 
 void SXRActivity::copyVulkanTexture(int texSwapChainIndex, int eye){
     RenderTarget* renderTarget = gRenderer->getRenderTarget(texSwapChainIndex, use_multiview ? 2 : eye);

@@ -19,10 +19,31 @@
  ***************************************************************************/
 
 #include <engine/renderer/renderer.h>
+#include <objects/textures/render_texture.h>
 #include "vulkan/vulkan_headers.h"
 
 namespace sxr {
 extern "C" {
+
+    JNIEXPORT jlong JNICALL
+    Java_com_samsungxr_MonoscopicViewManager_getRenderTextureInfo(JNIEnv*, jobject, int width, int height) {
+        RenderTextureInfo renderTextureInfo;
+        renderTextureInfo.fboId = 0;
+        renderTextureInfo.fboHeight = height;
+        renderTextureInfo.fboWidth = width;
+        renderTextureInfo.multisamples = 1;
+        renderTextureInfo.useMultiview = false;
+        renderTextureInfo.views = 1;
+        renderTextureInfo.texId = 0;
+        renderTextureInfo.viewport[0] = 0;
+        renderTextureInfo.viewport[1] = 0;
+        renderTextureInfo.viewport[2] = width;
+        renderTextureInfo.viewport[3] = height;
+
+        RenderTexture* renderTexture = (Renderer::getInstance()->createRenderTexture(renderTextureInfo));
+        return reinterpret_cast<long>(renderTexture);
+    }
+
     JNIEXPORT jlong JNICALL
         Java_com_samsungxr_NativeVulkanCore_getInstance(JNIEnv* env, jobject obj, jobject surface, jint vulkanPropValue);
 

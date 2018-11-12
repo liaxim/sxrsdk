@@ -331,7 +331,6 @@ class MonoscopicViewManager extends SXRViewManager implements MonoscopicRotation
         }
     }
 
-
     SXRRenderTarget getRenderTarget(){
         if(mRenderTarget[0] == null) {
             if(isVulkanInstance) {
@@ -347,13 +346,18 @@ class MonoscopicViewManager extends SXRViewManager implements MonoscopicRotation
                 mRenderBundle.addRenderTarget(mRenderTarget[2], SXRViewManager.EYE.LEFT, 2);
             }
             else{
-                mRenderTarget[0] = new SXRRenderTarget(mApplication.getSXRContext(), mViewportWidth,
-                                                        mViewportHeight);
+                //SXRRenderTexture t = new SXRRenderTexture();
+                long ptr = getRenderTextureInfo(mViewportWidth, mViewportHeight);
+                SXRRenderTexture t = new SXRRenderTexture(mApplication.getSXRContext(), mViewportWidth, mViewportHeight, ptr);
+                mRenderTarget[0] = new SXRRenderTarget(mApplication.getSXRContext());
+                mRenderTarget[0].setTexture(t);
             }
         }
 
         return (isVulkanInstance ? mRenderTarget[NativeVulkanCore.getSwapChainIndexToRender()] : mRenderTarget[0]);
     }
+
+    native long getRenderTextureInfo(int width, int height);
 
     /*
      * GL life cycle
