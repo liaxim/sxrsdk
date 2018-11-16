@@ -759,23 +759,6 @@ public final class SXRRenderData extends SXRComponent implements IRenderable, Pr
     }
 
     /**
-     * Set the capturer for this texture. If capturer is null, the existing capturer
-     * is removed. Whether the capturer takes effect depends on the shader associated
-     * with {@code SXRMaterial}. In order to support the texture capturer, a native
-     * shader should check {@code RenderData::get_texture_capturer}. See {@code
-     * ExternalRendererShader} as an example.
-     *
-     * @param capturer The capturer.
-     */
-    public void setTextureCapturer(SXRTextureCapturer capturer) {
-        if (capturer != null) {
-            NativeRenderData.setTextureCapturer(getNative(), capturer.getNative());
-        } else {
-            NativeRenderData.setTextureCapturer(getNative(), 0);
-        }
-    }
-
-    /**
      * Checks if a renderable object can cast shadows.
      * @return true if shadows are cast, false if not.
      * @see #setCastShadows(boolean)
@@ -918,8 +901,6 @@ class NativeRenderData {
     static native int getDrawMode(long renderData);
 
     static native void setDrawMode(long renderData, int draw_mode);
-
-    static native void setTextureCapturer(long renderData, long texture_capturer);
 
     static native void setCastShadows(long renderData, boolean castShadows);
 
