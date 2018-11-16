@@ -93,7 +93,7 @@ protected:
 };
 
 
-class GLMultiviewRenderTexture: public GLRenderTexture
+class GLMultiviewRenderTexture final : public GLRenderTexture
 {
 public:
     int mLayers_;
@@ -117,13 +117,13 @@ public:
 
     virtual ~GLMultiviewRenderTexture(){}
 
-    virtual bool readRenderResult(uint8_t* readback_buffer){
+    virtual bool readRenderResult(uint8_t* readback_buffer) override {
         glBindFramebuffer(GL_READ_FRAMEBUFFER, getReadBufferId());
         glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, getId(), 0, layer_index_ );
         return GLRenderTexture::readRenderResult(readback_buffer);
     }
 
-    virtual void beginRendering(Renderer* renderer){
+    virtual void beginRendering(Renderer* renderer) override {
         if (!isReady())
         {
             return;
@@ -131,6 +131,11 @@ public:
 
         bind();
         GLRenderTexture::beginRendering(renderer);
+    }
+
+    virtual void setLayerIndex(int layerIndex) override
+    {
+        layer_index_ = layerIndex;
     }
 
 };

@@ -387,7 +387,7 @@ void GLRenderTexture::bindTexture(int gl_location, int texIndex)
  */
 void GLRenderTexture::setLayerIndex(int layerIndex)
 {
-    layer_index_ = layerIndex;
+    //is this multiview only?
 }
 
 GLNonMultiviewRenderTexture::GLNonMultiviewRenderTexture(int width, int height, int sample_count,

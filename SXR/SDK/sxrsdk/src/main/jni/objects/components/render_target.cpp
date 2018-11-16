@@ -138,4 +138,10 @@ void RenderTarget::setTexture(RenderTexture* texture)
     mRenderState.sampleCount = mRenderTexture->getSampleCount();
 }
 
+void RenderTarget::readRenderResult(uint8_t *readback_buffer, int eye) {
+    RenderTexture* renderTexture = getTexture();
+    renderTexture->setLayerIndex(eye);
+    renderTexture->readRenderResult(readback_buffer);
+}
+
 }

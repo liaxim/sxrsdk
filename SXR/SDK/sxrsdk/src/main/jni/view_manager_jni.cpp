@@ -93,10 +93,7 @@ JNIEXPORT void JNICALL Java_com_samsungxr_SXRViewManager_readRenderResultNative(
                                                                               jobject jreadback_buffer, jlong jrenderTarget, jint eye, jboolean useMultiview){
     uint8_t *readback_buffer = (uint8_t*) env->GetDirectBufferAddress(jreadback_buffer);
     RenderTarget* renderTarget = reinterpret_cast<RenderTarget*>(jrenderTarget);
-    RenderTexture* renderTexture = renderTarget->getTexture();
-    if(useMultiview){
-            renderTexture->setLayerIndex(eye);
-    }
-    renderTexture->readRenderResult(readback_buffer);
+    renderTarget->readRenderResult(readback_buffer, eye);
 }
+
 }
