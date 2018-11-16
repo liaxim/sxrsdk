@@ -338,35 +338,6 @@ void GLRenderTexture::invalidateFrameBuffer(GLenum target, bool is_fbo, const bo
     glInvalidateFramebuffer(target, count, (is_fbo ? fboAttachments : attachments) + offset);
 }
 
-bool GLRenderTexture::readRenderResult(uint8_t* readback_buffer){
-    Image* image = getImage();
-    long neededCapacity = image->getWidth() * image->getHeight();
-    if (!readback_buffer) {
-        LOGE("GLRenderTexture::readRenderResult: readback_buffer is null");
-        return false;
-    }
-    readRenderResult(readback_buffer,neededCapacity);
-    return true;
-}
-
-bool GLRenderTexture::readRenderResult(uint8_t *readback_buffer, long capacity) {
-    Image* image = getImage();
-    long neededCapacity = image->getWidth() * image->getHeight();
-    if (!readback_buffer) {
-        LOGE("GLRenderTexture::readRenderResult: readback_buffer is null");
-        return false;
-    }
-
-    if (capacity < neededCapacity) {
-        LOGE("GLRenderTexture::readRenderResult: buffer capacity too small "
-                     "(capacity %ld, needed %ld)", capacity, neededCapacity);
-        return false;
-    }
-    glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, readback_buffer);
-
-    return true;
-}
-
 void GLRenderTexture::bindTexture(int gl_location, int texIndex)
 {
     GLRenderImage* image = static_cast<GLRenderImage*>(getImage());

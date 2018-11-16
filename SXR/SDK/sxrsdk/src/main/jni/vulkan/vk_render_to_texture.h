@@ -72,11 +72,6 @@ public:
     virtual void endRendering(Renderer*){
         vkCmdEndRenderPass(mCmdBuffer);
     }
-    // Start to read back texture in the background. It can be optionally called before
-    // readRenderResult() to read pixels asynchronously. This function returns immediately.
-    virtual void startReadBack() {
-
-    }
 
     // Copy data in pixel buffer to client memory. This function is synchronous. When
     // it returns, the pixels have been copied to PBO and then to the client memory.
@@ -86,11 +81,7 @@ public:
     bool isReady();
 
     virtual void setLayerIndex(int layer_index);
-    // Copy data in pixel buffer to client memory. This function is synchronous. When
-    // it returns, the pixels have been copied to PBO and then to the client memory.
-    virtual bool readRenderResult(uint8_t *readback_buffer, long capacity) {
-        return true;
-    }
+
     VkRenderPass getRenderPass(){
         bind();
         return fbo->getRenderPass();

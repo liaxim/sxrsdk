@@ -159,20 +159,6 @@ public class SXRRenderTexture extends SXRTexture {
     void endRendering() {
         NativeRenderTexture.endRendering(getNative());
     }
-    /**
-     * Return the render texture.
-     *
-     * @param readbackBuffer
-     *        A preallocated IntBuffer to receive the data from the texture. Its capacity should
-     *        be width * height. The output pixel format is GPU format GL_RGBA packed as an 32-bit
-     *        integer.
-     *
-     * @return true if successful.
-     */
-    boolean readRenderResult(int[] readbackBuffer)
-    {
-        return NativeRenderTexture.readRenderResult(getNative(), readbackBuffer);
-    }
 
     /**
      * Bind the framebuffer for this SXRRenderTexture.

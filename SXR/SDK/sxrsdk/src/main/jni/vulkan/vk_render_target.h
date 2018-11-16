@@ -27,11 +27,12 @@ class VkRenderTarget: public  RenderTarget
 public:
     explicit VkRenderTarget(RenderTexture* renderTexture, bool is_multiview);
     explicit VkRenderTarget(Scene* scene);
-    explicit VkRenderTarget(Scene* scene,int defaultViewportW, int defaultViewportH);
     explicit VkRenderTarget(RenderTexture* renderTexture, const RenderTarget* source);
-    explicit  VkRenderTarget(){}
+    explicit VkRenderTarget(){}
     virtual ~VkRenderTarget(){}
-    virtual void    beginRendering(Renderer* renderer);
+
+    virtual void beginRendering(Renderer* renderer) override;
+    virtual void readRenderResult(uint8_t *readback_buffer, int eye) override;
 
     VkRenderTexture* getTexture();
     VkCommandBuffer& getCommandBuffer();

@@ -1,5 +1,4 @@
 #include "objects/components/shadow_map.h"
-
 #include "util/sxr_jni.h"
 #include "util/sxr_log.h"
 #include "glm/gtc/type_ptr.hpp"

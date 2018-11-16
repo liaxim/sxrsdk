@@ -68,7 +68,7 @@ public:
     }
     virtual void cullFromCamera(Scene*, jobject javaNode, Camera* camera, Renderer* renderer, ShaderManager* shader_manager);
 
-    void readRenderResult(uint8_t *readback_buffer, int eye);
+    virtual void readRenderResult(uint8_t *readback_buffer, int eye) = 0;
 
 private:
     RenderTarget(const RenderTarget& render_texture) = delete;

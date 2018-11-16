@@ -15,6 +15,7 @@
 
 #include <gl/gl_index_buffer.h>
 #include <gl/gl_vertex_buffer.h>
+#include <gl/gl_render_target.h>
 #include "glm/gtc/matrix_inverse.hpp"
 #include "gl/gl_material.h"
 #include "gl/gl_render_data.h"
@@ -52,16 +53,16 @@ namespace sxr
         return new RenderPass();
     }
     RenderTarget* GLRenderer::createRenderTarget(Scene* scene) {
-        return new RenderTarget(scene);
+        return new GLRenderTarget(scene);
     }
     RenderTarget* GLRenderer::createRenderTarget(Scene* scene, int defaultViewportW, int defaultViewportH) {
-        return new RenderTarget(scene, defaultViewportW, defaultViewportH);
+        return new GLRenderTarget(scene, defaultViewportW, defaultViewportH);
     }
     RenderTarget* GLRenderer::createRenderTarget(RenderTexture* renderTexture, bool isMultiview){
-        return new RenderTarget(renderTexture, isMultiview);
+        return new GLRenderTarget(renderTexture, isMultiview);
     }
     RenderTarget* GLRenderer::createRenderTarget(RenderTexture* renderTexture, const RenderTarget* renderTarget){
-        return new RenderTarget(renderTexture, renderTarget);
+        return new GLRenderTarget(renderTexture, renderTarget);
     }
     RenderTexture* GLRenderer::createRenderTexture(const RenderTextureInfo& renderTextureInfo){
 

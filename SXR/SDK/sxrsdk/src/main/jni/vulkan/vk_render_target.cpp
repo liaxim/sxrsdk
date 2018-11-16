@@ -16,7 +16,7 @@
 #include "../engine/renderer/vulkan_renderer.h"
 #include "../vulkan/vk_render_target.h"
 #include "../vulkan/vk_render_to_texture.h"
-
+#include "vk_render_target.h"
 
 
 namespace sxr{
@@ -32,8 +32,7 @@ VkRenderTarget::VkRenderTarget(RenderTexture* renderTexture, bool is_multiview):
 
 VkRenderTarget::VkRenderTarget(Scene* scene): RenderTarget(scene){
 }
-VkRenderTarget::VkRenderTarget(Scene* scene, int defaultViewportW, int defaultViewportH): RenderTarget(scene, defaultViewportW, defaultViewportH){
-}
+
 VkRenderTarget::VkRenderTarget(RenderTexture* renderTexture, const RenderTarget* source): RenderTarget(renderTexture, source){
 }
 
@@ -85,6 +84,12 @@ VkRenderTexture* VkRenderTarget :: getTexture() {
     }
 
     return static_cast<VkRenderTexture*>(mRenderTexture);
+}
+
+void VkRenderTarget::readRenderResult(uint8_t *readback_buffer, int eye) {
+    VkRenderTexture* renderTexture = getTexture();
+    renderTexture->setLayerIndex(eye);
+    renderTexture->readRenderResult(readback_buffer);
 }
 
 }

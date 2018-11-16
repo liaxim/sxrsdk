@@ -28,12 +28,14 @@ class GLFrameBuffer;
     {
     public:
         explicit ShadowMap(ShaderData* mtl);
-        virtual void  beginRendering(Renderer* renderer);
+        virtual void beginRendering(Renderer* renderer) override ;
         void setLayerIndex(int layerIndex);
 
         ShaderData* getShadowMaterial(){
             return mShadowMaterial;
         }
+
+        virtual void readRenderResult(uint8_t *readback_buffer, int eye) override { /*hmm*/ }
 
     protected:
         int         mLayerIndex;
