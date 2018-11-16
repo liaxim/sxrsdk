@@ -23,35 +23,43 @@
 #include "render_texture.h"
 #include "gl/gl_render_texture.h"
 namespace sxr {
+
 extern "C" {
 JNIEXPORT jlong JNICALL
-Java_com_samsungxr_NativeRenderTexture_ctor(JNIEnv * env, jobject obj, jint width,
-        jint height);
+Java_com_samsungxr_NativeRenderTexture_ctor(JNIEnv *env, jobject obj, jint width,
+                                            jint height);
 JNIEXPORT jlong JNICALL
-Java_com_samsungxr_NativeRenderTexture_ctorMSAA(JNIEnv * env, jobject obj,
-        jint width, jint height, jint sample_count, jint number_views);
+Java_com_samsungxr_NativeRenderTexture_ctorMSAA(JNIEnv *env, jobject obj,
+                                                jint width, jint height, jint sample_count,
+                                                jint number_views);
 JNIEXPORT jlong JNICALL
-Java_com_samsungxr_NativeRenderTexture_ctorWithParameters(JNIEnv * env,
-        jobject obj, jint width, jint height, jint sample_count,
-        jint color_format, jint depth_format, jboolean resolve_depth,
-        jintArray parameters, jint);
+Java_com_samsungxr_NativeRenderTexture_ctorWithParameters(JNIEnv *env,
+                                                          jobject obj, jint width, jint height,
+                                                          jint sample_count,
+                                                          jint color_format, jint depth_format,
+                                                          jboolean resolve_depth,
+                                                          jintArray parameters, jint);
 JNIEXPORT jlong JNICALL
-Java_com_samsungxr_NativeRenderTexture_ctorArray(JNIEnv * env,
-        jobject obj, jint width, jint height, jint samples, jint numLayers);
+Java_com_samsungxr_NativeRenderTexture_ctorArray(JNIEnv *env,
+                                                 jobject obj, jint width, jint height, jint samples,
+                                                 jint numLayers);
 JNIEXPORT void JNICALL
-Java_com_samsungxr_NativeRenderTexture_beginRendering(JNIEnv * env, jobject obj,
+Java_com_samsungxr_NativeRenderTexture_beginRendering(JNIEnv *env, jobject obj,
+                                                      jlong ptr);
+JNIEXPORT void JNICALL
+Java_com_samsungxr_NativeRenderTexture_endRendering(JNIEnv *env, jobject obj,
                                                     jlong ptr);
-JNIEXPORT void JNICALL
-Java_com_samsungxr_NativeRenderTexture_endRendering(JNIEnv * env, jobject obj,
-                                                  jlong ptr);
 JNIEXPORT bool JNICALL
-Java_com_samsungxr_NativeRenderTexture_readRenderResult(JNIEnv * env, jobject obj,
-        jlong ptr, jintArray jreadback_buffer);
+Java_com_samsungxr_NativeRenderTexture_readRenderResult(JNIEnv *env, jobject obj,
+                                                        jlong ptr, jintArray jreadback_buffer);
 
 JNIEXPORT void JNICALL
-Java_com_samsungxr_NativeRenderTexture_bind(JNIEnv * env, jobject obj, jlong ptr);
-}
-;
+Java_com_samsungxr_NativeRenderTexture_bind(JNIEnv *env, jobject obj, jlong ptr);
+
+JNIEXPORT jlong JNICALL
+Java_com_samsungxr_NativeRenderTexture_makeRenderTextureInfo(JNIEnv *, jclass, int fboId, int fboWidth, int fboHeight);
+} //extern "C"
+
 
 JNIEXPORT jlong JNICALL
 Java_com_samsungxr_NativeRenderTexture_ctor(JNIEnv * env, jobject obj,
@@ -101,7 +109,6 @@ Java_com_samsungxr_NativeRenderTexture_ctorArray(JNIEnv * env,
     return reinterpret_cast<jlong>(texarray);
 }
 
-
 JNIEXPORT bool JNICALL
 Java_com_samsungxr_NativeRenderTexture_readRenderResult(JNIEnv* env, jobject obj,
                                                       jlong ptr, jintArray jreadback_buffer)
@@ -116,6 +123,7 @@ Java_com_samsungxr_NativeRenderTexture_readRenderResult(JNIEnv* env, jobject obj
 
     return rv;
 }
+
 JNIEXPORT void JNICALL
 Java_com_samsungxr_NativeRenderTexture_beginRendering(JNIEnv * env, jobject obj,
                                                     jlong ptr) {
@@ -129,6 +137,7 @@ Java_com_samsungxr_NativeRenderTexture_endRendering(JNIEnv * env, jobject obj,
     RenderTexture *render_texture = reinterpret_cast<RenderTexture*>(ptr);
     render_texture->endRendering(gRenderer->getInstance());
 }
+
 JNIEXPORT void JNICALL
 Java_com_samsungxr_NativeRenderTexture_bind(JNIEnv * env, jobject obj, jlong ptr)
 {
@@ -136,5 +145,24 @@ Java_com_samsungxr_NativeRenderTexture_bind(JNIEnv * env, jobject obj, jlong ptr
     render_texture->bind();
 }
 
+JNIEXPORT jlong JNICALL
+Java_com_samsungxr_NativeRenderTexture_makeRenderTextureInfo(JNIEnv *, jclass, int fboId, int fboWidth, int fboHeight) {
+    RenderTextureInfo* renderTextureInfo = new RenderTextureInfo;
+
+    renderTextureInfo->fboWidth = fboWidth;
+    renderTextureInfo->fboHeight = fboHeight;
+    renderTextureInfo->fboId = fboId;
+    renderTextureInfo->viewport[2] = fboWidth;
+    renderTextureInfo->viewport[3] = fboHeight;
+
+    renderTextureInfo->multisamples = 1;
+    renderTextureInfo->texId = 0;
+    renderTextureInfo->useMultiview = false;
+    renderTextureInfo->layers = 0;
+    renderTextureInfo->viewport[0] = 0;
+    renderTextureInfo->viewport[1] = 0;
+
+    return reinterpret_cast<jlong>(renderTextureInfo);
+}
 
 }

@@ -204,4 +204,6 @@ class NativeRenderTexture {
     static native boolean readRenderResult(long ptr, int[] readbackBuffer);
 
     static native void bind(long ptr);
+
+    static native long makeRenderTextureInfo(int fboId, int fboWidth, int Height);
 }

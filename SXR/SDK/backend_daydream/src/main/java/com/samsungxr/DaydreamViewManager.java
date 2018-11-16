@@ -20,7 +20,6 @@ import android.view.WindowManager;
 
 import com.google.vr.ndk.base.AndroidCompat;
 import com.google.vr.ndk.base.GvrLayout;
-
 import com.samsungxr.io.SXRGearCursorController;
 
 class DaydreamViewManager extends SXRViewManager {
@@ -82,13 +81,19 @@ class DaydreamViewManager extends SXRViewManager {
     public long getNativeRenderer(){
         return renderer.getNativeDaydreamRenderer();
     }
+
     public SXRRenderTarget getRenderTarget(){
         if(null == mDaydreamRenderTarget){
+//            final long infoNative = NativeRenderTexture.makeRenderTextureInfo(0, defaultWidth, defaultHeight);
+//            final long renderTextureNative = SXRRenderBundle.getRenderTextureNative(infoNative);
+//            final SXRRenderTexture renderTexture = new SXRRenderTexture(mApplication.getSXRContext(), defaultWidth, defaultHeight, renderTextureNative);
+//            mDaydreamRenderTarget = new SXRRenderTarget(renderTexture, mApplication.getSXRContext().getMainScene());
             mDaydreamRenderTarget = new SXRRenderTarget(mApplication.getSXRContext(),
                     defaultWidth, defaultHeight);
         }
         return mDaydreamRenderTarget;
     }
+
     @Override
     void onResume() {
         super.onResume();

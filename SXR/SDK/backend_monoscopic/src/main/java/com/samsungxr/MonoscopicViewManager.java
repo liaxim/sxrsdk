@@ -347,7 +347,7 @@ class MonoscopicViewManager extends SXRViewManager implements MonoscopicRotation
                 mRenderBundle.addRenderTarget(mRenderTarget[2], SXRViewManager.EYE.LEFT, 2);
             }
             else{
-                final long infoNative = makeRenderTextureInfo(0, mViewportWidth, mViewportHeight);
+                final long infoNative = NativeRenderTexture.makeRenderTextureInfo(0, mViewportWidth, mViewportHeight);
                 final long renderTextureNative = SXRRenderBundle.getRenderTextureNative(infoNative);
                 final SXRRenderTexture renderTexture = new SXRRenderTexture(mApplication.getSXRContext(), mViewportWidth, mViewportHeight, renderTextureNative);
                 mRenderTarget[0] = new SXRRenderTarget(renderTexture, mApplication.getSXRContext().getMainScene());
@@ -450,8 +450,6 @@ class MonoscopicViewManager extends SXRViewManager implements MonoscopicRotation
             updateSensoredScene();
         }
     }
-
-    static native long makeRenderTextureInfo(int fboId, int fboWidth, int Height);
 }
 
 
