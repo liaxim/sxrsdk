@@ -179,7 +179,7 @@ bool VkRenderTexture::isReady(){
 }
 
 
-bool VkRenderTexture::readRenderResult(uint8_t *readback_buffer){
+bool VkRenderTexture::readRenderResult(uint8_t *readback_buffer, int width, int height) {
     //wait for rendering to be complete
     if(!isReady()) {
         LOGE("VkRenderTexture::readRenderResult: error in rendering");
@@ -203,15 +203,15 @@ bool VkRenderTexture::readRenderResult(uint8_t *readback_buffer){
     if(vk_renderer->getCore()->isSwapChainPresent())
     {
         int offset = 0;
-        size_t rowSize = sizeof(u_char) * 4 * mWidth;
+        size_t rowSize = sizeof(u_char) * 4 * width;
         u_char  * bytedata = data; u_char * readbackdata = readback_buffer;
-        for(int i = mHeight - 1; i >=0 ; i -- )
+        for(int i = height - 1; i >=0 ; i -- )
         {
             memcpy(readbackdata + offset, bytedata + (i * rowSize), rowSize);
             offset += rowSize;
         }
     }else{
-        memcpy(readback_buffer, data, mWidth*mHeight*4);
+        memcpy(readback_buffer, data, width*height*4);
     }
     unmapDeviceMemory();
 

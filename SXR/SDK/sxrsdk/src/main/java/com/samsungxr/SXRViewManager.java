@@ -593,16 +593,18 @@ abstract class SXRViewManager extends SXRContext {
     }
 
     protected void readRenderResult(SXRRenderTarget renderTarget, SXRViewManager.EYE eye, boolean useMultiview) {
+        final VrAppSettings settings = mApplication.getAppSettings();
+        final VrAppSettings.EyeBufferParams eyeBufferParams = settings.getEyeBufferParams();
+
         if (mReadbackBuffer == null) {
-            final VrAppSettings settings = mApplication.getAppSettings();
-            final VrAppSettings.EyeBufferParams eyeBufferParams = settings.getEyeBufferParams();
             mReadbackBufferWidth = eyeBufferParams.getResolutionWidth();
             mReadbackBufferHeight = eyeBufferParams.getResolutionHeight();
 
             mReadbackBuffer = ByteBuffer.allocateDirect(mReadbackBufferWidth * mReadbackBufferHeight * 4);
             mReadbackBuffer.order(ByteOrder.nativeOrder());
         }
-        readRenderResultNative(mReadbackBuffer,renderTarget.getNative(), eye.ordinal(), useMultiview );
+
+        readRenderResultNative(mReadbackBuffer,renderTarget.getNative(), eye.ordinal(), useMultiview, eyeBufferParams.getResolutionWidth(), eyeBufferParams.getResolutionHeight());
     }
 
     protected void returnScreenshotToCaller(final SXRScreenshotCallback callback, final int width, final int height) {
@@ -851,7 +853,7 @@ abstract class SXRViewManager extends SXRContext {
 
     protected native void makeShadowMaps(long scene, SXRScene javaNode, long shader_manager, int width, int height);
     protected native void cullAndRender(long render_target, long scene, SXRScene javaNode, long shader_manager, long postEffectRenderTextureA, long postEffectRenderTextureB);
-    private native static void readRenderResultNative(Object readbackBuffer, long renderTarget, int eye, boolean useMultiview);
+    private native static void readRenderResultNative(Object readbackBuffer, long renderTarget, int eye, boolean useMultiview, int width, int height);
 
     private static final String TAG = "SXRViewManager";
 

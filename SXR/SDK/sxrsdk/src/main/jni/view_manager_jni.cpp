@@ -84,19 +84,19 @@ extern "C" {
 
     JNIEXPORT void JNICALL
     Java_com_samsungxr_SXRViewManager_readRenderResultNative(JNIEnv *env, jclass clazz,
-                                                           jobject jreadback_buffer, jlong jrenderTarget, jint eye, jboolean useMultiview);
+                                                           jobject jreadback_buffer, jlong jrenderTarget, jint eye, jboolean useMultiview, int width, int height);
 
 } // extern "C"
 
 
 JNIEXPORT void JNICALL Java_com_samsungxr_SXRViewManager_readRenderResultNative(JNIEnv *env, jclass clazz,
-                                                                              jobject jreadback_buffer, jlong jrenderTarget, jint eye, jboolean useMultiview){
+                                                                              jobject jreadback_buffer, jlong jrenderTarget, jint eye, jboolean useMultiview, int width, int height) {
     uint8_t *readback_buffer = (uint8_t*) env->GetDirectBufferAddress(jreadback_buffer);
     RenderTarget* renderTarget = reinterpret_cast<RenderTarget*>(jrenderTarget);
     RenderTexture* renderTexture = renderTarget->getTexture();
     if(useMultiview){
             renderTexture->setLayerIndex(eye);
     }
-    renderTexture->readRenderResult(readback_buffer);
+    renderTexture->readRenderResult(readback_buffer, width, height);
 }
 }

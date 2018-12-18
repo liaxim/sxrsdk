@@ -60,8 +60,8 @@ public:
 
     // Copy data in pixel buffer to client memory. This function is synchronous. When
     // it returns, the pixels have been copied to PBO and then to the client memory.
-    virtual bool readRenderResult(uint8_t* readback_buffer, long capacity);
-    virtual bool readRenderResult(uint8_t* readback_buffer);
+    virtual bool readRenderResult(uint8_t* readback_buffer, int width, int height);
+
     void bindTexture(int gl_location, int texIndex);
     void setLayerIndex(int layerIndex);
 
@@ -119,11 +119,13 @@ public:
     virtual bool isReady() {
         return GLRenderTexture::isReady();
     }
-    virtual bool readRenderResult(uint8_t* readback_buffer){
+
+    virtual bool readRenderResult(uint8_t* readback_buffer, int width, int height){
         glBindFramebuffer(GL_READ_FRAMEBUFFER, getReadBufferId());
         glFramebufferTextureLayer(GL_READ_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, getId(), 0, layer_index_ );
-        return GLRenderTexture::readRenderResult(readback_buffer);
+        return GLRenderTexture::readRenderResult(readback_buffer, width, height);
     }
+
     virtual void beginRendering(Renderer* renderer){
         if (!isReady())
         {
