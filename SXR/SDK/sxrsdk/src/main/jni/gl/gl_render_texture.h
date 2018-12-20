@@ -109,8 +109,6 @@ public:
 
     explicit GLMultiviewRenderTexture(int width, int height, int sample_count, int layers, GLuint fboId, GLuint texId, int const viewport[]):
             GLRenderTexture(width, height, sample_count, layers,fboId,texId, viewport){}
-    explicit GLMultiviewRenderTexture(int width, int height, int sample_count, int layers, int depth_format, int const viewport[]): GLRenderTexture(width, height, sample_count, layers, depth_format, viewport),
-                                                                                                              mLayers_(layers){}
     explicit GLMultiviewRenderTexture(int width, int height, int sample_count,
                                          int jcolor_format, int jdepth_format, bool resolve_depth,
                                          const TextureParameters* texture_parameters, int layers, int const viewport[]);
