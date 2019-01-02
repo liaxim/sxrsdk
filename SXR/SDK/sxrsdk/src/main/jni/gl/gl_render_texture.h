@@ -34,7 +34,7 @@ class Renderer;
 class GLRenderTexture : public RenderTexture
 {
 public:
-    explicit GLRenderTexture(int width, int height, int sample_count, int layers, GLuint fboId, GLuint texId, int const viewport[]);
+    explicit GLRenderTexture(int width, int height, int sample_count, int layers, GLint fboId, GLuint texId, int const viewport[]);
     explicit GLRenderTexture(int width, int height, int sample_count, int layers, int depth_format, int const viewport[]);
     explicit GLRenderTexture(int width, int height, int sample_count,
             int jcolor_format, int jdepth_format, bool resolve_depth,

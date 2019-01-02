@@ -86,6 +86,25 @@ extern "C" {
     Java_com_samsungxr_SXRViewManager_readRenderResultNative(JNIEnv *env, jclass clazz,
                                                            jobject jreadback_buffer, jlong jrenderTarget, jint eye, jboolean useMultiview, int width, int height);
 
+    JNIEXPORT jlong JNICALL
+    Java_com_samsungxr_SXRViewManager_makeRenderTextureInfo(JNIEnv *, jobject, int fboId, int fboWidth, int fboHeight) {
+        RenderTextureInfo* renderTextureInfo = new RenderTextureInfo;
+
+        renderTextureInfo->fboWidth = fboWidth;
+        renderTextureInfo->fboHeight = fboHeight;
+        renderTextureInfo->fboId = fboId;
+        renderTextureInfo->viewport[2] = fboWidth;
+        renderTextureInfo->viewport[3] = fboHeight;
+
+        renderTextureInfo->multisamples = 1;
+        renderTextureInfo->texId = 0;
+        renderTextureInfo->useMultiview = false;
+        renderTextureInfo->layers = 0;
+        renderTextureInfo->viewport[0] = 0;
+        renderTextureInfo->viewport[1] = 0;
+
+        return reinterpret_cast<jlong>(renderTextureInfo);
+    }
 } // extern "C"
 
 

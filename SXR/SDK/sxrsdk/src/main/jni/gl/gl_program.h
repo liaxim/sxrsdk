@@ -107,17 +107,8 @@ public:
         GLuint program = glCreateProgram();
         if (program) {
             LOGW("createProgram attaching shaders");
-            GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-            if (status != GL_FRAMEBUFFER_COMPLETE) {
-                LOGW("createProgram glCheckFramebufferStatus not complete, status %d", status);
-                std::string error = "glCheckFramebufferStatus not complete.";
-                throw error;
-            }
-
-            glAttachShader(program, vertexShader);
-            checkGLError("glAttachShader");
-            glAttachShader(program, pixelShader);
-            checkGLError("glAttachShader");
+            GL(glAttachShader(program, vertexShader));
+            GL(glAttachShader(program, pixelShader));
 
             glLinkProgram(program);
             GLint linkStatus = GL_FALSE;

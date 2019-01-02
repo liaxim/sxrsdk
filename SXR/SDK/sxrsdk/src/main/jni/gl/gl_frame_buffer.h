@@ -28,14 +28,19 @@ namespace sxr {
 class GLFrameBuffer {
 public:
     GLFrameBuffer() {
-        glGenFramebuffers(1, &id_);
+        GLuint id;
+        glGenFramebuffers(1, &id);
+        id_ = id;
     }
-    GLFrameBuffer(GLuint id): id_(id){}
+    GLFrameBuffer(GLint id): id_(id){}
     ~GLFrameBuffer() {
-        GL(glDeleteFramebuffers(1, &id_));
+        if (-1 != id_) {
+            GLuint id = id_;
+            GL(glDeleteFramebuffers(1, &id));
+        }
     }
 
-    GLuint id() const {
+    GLint id() const {
         return id_;
     }
 private:
@@ -45,7 +50,7 @@ private:
     GLFrameBuffer& operator=(GLFrameBuffer&& gl_frame_buffer) = delete;
 
 private:
-    GLuint id_;
+    GLint id_;
 };
 
 }

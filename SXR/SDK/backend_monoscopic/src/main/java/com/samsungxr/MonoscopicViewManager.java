@@ -465,8 +465,6 @@ class MonoscopicViewManager extends SXRViewManager implements MonoscopicRotation
             updateSensoredScene();
         }
     }
-
-    static native long makeRenderTextureInfo(int fboId, int fboWidth, int Height);
 }
 
 

@@ -612,10 +612,12 @@ namespace sxr
     void GLRenderer::renderMaterialShader(RenderState& rstate, RenderData* render_data,
                                           ShaderData* curr_material, Shader* shader)
     {
+        LOGI("gl_renderer:615 ");
         GLMaterial* material = static_cast<GLMaterial*>(curr_material);
         GLRenderData* rdata = static_cast<GLRenderData*>(render_data);
         int drawMode = render_data->draw_mode();
 
+        LOGI("gl_renderer:620 ");
         try
         {
             shader->useShader(rstate.is_multiview);
@@ -627,6 +629,7 @@ namespace sxr
             shader = rstate.shader_manager->findShader("SXRErrorShader");
             shader->useShader(rstate.is_multiview);
         }
+        LOGI("gl_renderer:632 ");
         if ((drawMode == GL_LINE_STRIP) ||
             (drawMode == GL_LINES) ||
             (drawMode == GL_LINE_LOOP))
@@ -641,6 +644,7 @@ namespace sxr
                 glLineWidth(1.0f);
             }
         }
+        LOGI("gl_renderer:647 ");
         GLShader* glshader = static_cast<GLShader*>(shader);
         int texIndex = material->bindToShader(shader, this);
         if (texIndex >= 0)
@@ -680,6 +684,7 @@ namespace sxr
             checkGLError("renderMesh:before render");
             rdata->render(shader, this);
         }
+        LOGI("gl_renderer:687 ");
         checkGLError("renderMesh::renderMaterialShader");
     }
 

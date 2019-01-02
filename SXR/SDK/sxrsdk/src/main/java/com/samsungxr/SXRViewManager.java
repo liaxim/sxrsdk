@@ -854,6 +854,7 @@ abstract class SXRViewManager extends SXRContext {
     protected native void makeShadowMaps(long scene, SXRScene javaNode, long shader_manager, int width, int height);
     protected native void cullAndRender(long render_target, long scene, SXRScene javaNode, long shader_manager, long postEffectRenderTextureA, long postEffectRenderTextureB);
     private native static void readRenderResultNative(Object readbackBuffer, long renderTarget, int eye, boolean useMultiview, int width, int height);
+    static native long makeRenderTextureInfo(int fboId, int fboWidth, int Height);
 
     private static final String TAG = "SXRViewManager";
 

@@ -38,7 +38,7 @@ typedef void (GL_APIENTRY *PFNGLFRAMEBUFFERTEXTUREMULTISAMPLEMULTIVIEWOVRPROC)(G
                                                                                GLsizei samples,
                                                                                GLint baseViewIndex,
                                                                                GLsizei numViews);
-GLRenderTexture::GLRenderTexture(int width, int height, int sample_count, int layers, GLuint fboId, GLuint texId, int const viewport[]):
+GLRenderTexture::GLRenderTexture(int width, int height, int sample_count, int layers, GLint fboId, GLuint texId, int const viewport[]):
         RenderTexture(sample_count),
         layer_index_(0),
         renderTexture_gl_render_buffer_(nullptr),
@@ -47,7 +47,9 @@ GLRenderTexture::GLRenderTexture(int width, int height, int sample_count, int la
         renderTexture_gl_color_buffer_(nullptr){
 
     setImage(new GLRenderImage(width, height, layers, texId, false));
-    renderTexture_gl_frame_buffer_ = new GLFrameBuffer(fboId);
+    if (-1 != fboId) {
+        renderTexture_gl_frame_buffer_ = new GLFrameBuffer(fboId);
+    }
     viewport_[0] = viewport[0];
     viewport_[1] = viewport[1];
     viewport_[2] = viewport[2];
@@ -122,11 +124,7 @@ GLRenderTexture::~GLRenderTexture()
 
 bool GLRenderTexture::isReady()
 {
-    if (!Texture::isReady())
-    {
-        return false;
-    }
-    return true;
+    return Texture::isReady();
 }
 
 void GLRenderTexture::initialize()
@@ -276,8 +274,12 @@ void GLRenderTexture::generateRenderTexture(int sample_count, int jdepth_format,
             GL_RENDERBUFFER, renderTexture_gl_color_buffer_->id());
 }
 
-void GLRenderTexture::beginRendering(Renderer* renderer)
+void GLRenderTexture::beginRendering(Renderer*)
 {
+    if (nullptr == renderTexture_gl_frame_buffer_) {
+        return;
+    }
+
     GL(glViewport(viewport_[0], viewport_[1], viewport_[2], viewport_[3]));
     GL(glScissor(viewport_[0], viewport_[1], viewport_[2], viewport_[3]));
 
@@ -310,8 +312,12 @@ void GLRenderTexture::beginRendering(Renderer* renderer)
     }
 }
 
-void GLRenderTexture::endRendering(Renderer* renderer)
+void GLRenderTexture::endRendering(Renderer*)
 {
+    if (nullptr == renderTexture_gl_frame_buffer_) {
+        return;
+    }
+
     Image* image = getImage();
     const int width = image->getWidth();
     const int height = image->getHeight();

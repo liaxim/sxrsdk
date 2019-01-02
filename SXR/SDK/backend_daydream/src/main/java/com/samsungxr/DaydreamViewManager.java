@@ -84,8 +84,11 @@ class DaydreamViewManager extends SXRViewManager {
     }
     public SXRRenderTarget getRenderTarget(){
         if(null == mDaydreamRenderTarget){
-            mDaydreamRenderTarget = new SXRRenderTarget(mApplication.getSXRContext(),
-                    defaultWidth, defaultHeight);
+
+            final long infoNative = makeRenderTextureInfo(-1, defaultWidth, defaultHeight);
+            final long renderTextureNative = SXRRenderBundle.getRenderTextureNative(infoNative);
+            final SXRRenderTexture renderTexture = new SXRRenderTexture(mApplication.getSXRContext(), defaultWidth, defaultHeight, renderTextureNative);
+            mDaydreamRenderTarget = new SXRRenderTarget(renderTexture, mApplication.getSXRContext().getMainScene());
         }
         return mDaydreamRenderTarget;
     }
