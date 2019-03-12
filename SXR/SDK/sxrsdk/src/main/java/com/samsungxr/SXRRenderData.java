@@ -44,6 +44,10 @@ public final class SXRRenderData extends SXRComponent implements IRenderable, Pr
     private boolean mLightMapEnabled;
     private boolean isLightEnabled;
 
+    public void setLayer(int layer) {
+        NativeRenderData.setLayer(getNative(), layer);
+    }
+
     /**
      * Rendering hints.
      *
@@ -917,4 +921,6 @@ class NativeRenderData {
     static native void setStencilTest(long renderData, boolean flag);
 
     static native void setBindShaderObject(long renderData, SXRRenderData.BindShaderFromNative object);
+
+    static native void setLayer(long aNative, int layer);
 }

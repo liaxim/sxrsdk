@@ -496,4 +496,10 @@ Java_com_samsungxr_NativeRenderData_setBindShaderObject(JNIEnv* env, jclass, jlo
     rd->setBindShaderObject(env, bindShaderObject);
 }
 
+JNIEXPORT void JNICALL
+Java_com_samsungxr_NativeRenderData_setLayer(JNIEnv *env, jclass type, jlong aNative, jint layer) {
+    RenderData* rd = reinterpret_cast<RenderData*>(aNative);
+    rd->setLayer(layer);
+}
+
 }
