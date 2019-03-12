@@ -88,7 +88,7 @@ struct RenderState {
     bool                    lightsChanged;
     Scene*                  scene;
     jobject                 javaNode = nullptr;
-    ShaderData*             material_override;
+    ShaderData*             material_override = nullptr;
     ShaderUniformsPerObject uniforms;
     ShaderManager*          shader_manager;
     ShadowMap*              shadow_map;
@@ -155,7 +155,7 @@ public:
     void updateTransforms(RenderState& rstate, UniformBlock* block, RenderData*);
     virtual void initializeStats();
     virtual void cullFromCamera(Scene *scene, jobject javaSceneObject, Camera* camera,
-                                ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector,bool);
+                                ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, int layer = 0);
     virtual void set_face_culling(int cull_face) = 0;
 
     virtual void renderRenderData(RenderState& rstate, RenderData* render_data);
@@ -209,9 +209,10 @@ private:
     RenderTarget* mMultiviewRenderTarget[3];
     static bool isVulkan_;
     virtual void build_frustum(float frustum[6][4], const float *vp_matrix);
-    virtual void frustum_cull(glm::vec3 camera_position, Scene* scene, Node *object,
-            float frustum[6][4], std::vector<Node*>& scene_objects,
-            bool continue_cull, int planeMask);
+
+    void frustum_cull(glm::vec3 camera_position, Scene *scene, Node *object,
+                      float frustum[6][4], std::vector<Node *> &scene_objects,
+                      bool continue_cull, int planeMask, int layer);
 
     Renderer(const Renderer& render_engine) = delete;
     Renderer(Renderer&& render_engine) = delete;
