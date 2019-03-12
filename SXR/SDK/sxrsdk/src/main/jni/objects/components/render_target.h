@@ -64,7 +64,7 @@ public:
     virtual void    endRendering(Renderer* renderer);
     static long long getComponentType() { return COMPONENT_TYPE_RENDER_TARGET; }
     std::vector<RenderData*>* getRenderDataVector(){
-        return mRenderDataVector.get();
+        return mRenderDataVector[0].get();
     }
     virtual void cullFromCamera(Scene*, jobject javaNode, Camera* camera, Renderer* renderer, ShaderManager* shader_manager);
 private:
@@ -77,7 +77,7 @@ protected:
     RenderTarget*   mNextRenderTarget;
     RenderState     mRenderState;
     RenderTexture*  mRenderTexture = nullptr;
-    std::shared_ptr<std::vector<RenderData*>> mRenderDataVector;
+    std::shared_ptr<std::vector<RenderData*>> mRenderDataVector[2];
 };
 
 }

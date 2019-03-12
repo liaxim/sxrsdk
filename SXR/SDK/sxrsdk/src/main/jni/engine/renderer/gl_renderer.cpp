@@ -204,13 +204,10 @@ namespace sxr
         transform_ubo_[0]->useGPUBuffer(false);
     }
 
-
-    void GLRenderer::renderRenderTarget(Scene* scene, jobject javaSceneObject, RenderTarget* renderTarget,
-                            ShaderManager* shader_manager,
-                            RenderTexture* post_effect_render_texture_a,
-                            RenderTexture* post_effect_render_texture_b)
+    void GLRenderer::renderRenderTarget(Scene* scene, jobject javaSceneObject, RenderTarget* renderTarget, ShaderManager* shader_manager,
+                                        RenderTexture* post_effect_render_texture_a, RenderTexture* post_effect_render_texture_b,
+                                        std::vector<RenderData*>* render_data_vector)
     {
-
         resetStats();
         renderTarget->beginRendering(this);
 
@@ -233,7 +230,6 @@ namespace sxr
         rstate.uniforms.u_view_inv = glm::inverse(camera->getViewMatrix());
         rstate.shadow_map = nullptr;
         rstate.lightsChanged = false;
-        std::vector<RenderData*>* render_data_vector = renderTarget->getRenderDataVector();
         LightList& lights = scene->getLights();
 
         if (!rstate.is_shadow)
@@ -323,6 +319,7 @@ namespace sxr
             renderPostEffectData(rstate, input_texture, post_effects, npost);
         }
         GL(glDisable(GL_BLEND));
+
         renderTarget->endRendering(this);
     }
 

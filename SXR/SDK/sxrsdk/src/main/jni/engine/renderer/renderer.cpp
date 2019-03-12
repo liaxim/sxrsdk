@@ -48,10 +48,12 @@ Renderer::Renderer() : numberDrawCalls(0),
         batch_manager = new BatchManager(BATCH_SIZE, MAX_INDICES);
     }
 }
+
 void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* object,
         float frustum[6][4], std::vector<Node*>& scene_objects,
-        bool need_cull, int planeMask) {
-
+        bool need_cull, int planeMask, int layer)
+{
+    LOGD("Renderer::frustum_cull: object: %s", object->name().c_str());
     // frustumCull() return 3 possible values:
     // 0 when the HBV of the object is completely outside the frustum: cull itself and all its children out
     // 1 when the HBV of the object is intersecting the frustum but the object itself is not: cull it out and continue culling test with its children
@@ -66,6 +68,7 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
     //allows for on demand calculation of the camera distance; usually matters
     //when transparent objects are in play
     RenderData* renderData = object->render_data();
+    int objectLayer;
     if (nullptr != renderData) {
         renderData->setCameraDistanceLambda([object, camera_position]() {
             // Transform the bounding volume
@@ -80,6 +83,10 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
             // this distance will be used when sorting transparent objects
             return distance;
         });
+        objectLayer = renderData->layer();
+        LOGD("Renderer::frustum_cull: object's layer is %d", objectLayer);
+    } else {
+        objectLayer = 0;
     }
 
     if (need_cull) {
@@ -91,7 +98,12 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
 
         if (cullVal >= 2) {
             object->setCullStatus(false);
-            scene_objects.push_back(object);
+            if (objectLayer == layer) {
+                LOGD("Renderer::frustum_cull: adding to layer %d", layer);
+                scene_objects.push_back(object);
+            } else {
+                LOGD("Renderer::frustum_cull: skipped for layer %d", layer);
+            }
         }
 
         if (cullVal == 3) {
@@ -100,12 +112,17 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
         }
     } else {
         object->setCullStatus(false);
-        scene_objects.push_back(object);
+        if (objectLayer == layer) {
+            LOGD("Renderer::frustum_cull: adding to layer %d", layer);
+            scene_objects.push_back(object);
+        } else {
+            LOGD("Renderer::frustum_cull: skipped");
+        }
     }
     scene->pick(object);
     const std::vector<Node*> children = object->children();
     for (auto it = children.begin(); it != children.end(); ++it) {
-        frustum_cull(camera_position, scene, *it, frustum, scene_objects, need_cull, planeMask);
+        frustum_cull(camera_position, scene, *it, frustum, scene_objects, need_cull, planeMask, layer);
     }
 }
 
@@ -157,7 +174,7 @@ bool isRenderPassEqual(RenderData* rdata1, RenderData* rdata2){
  * Perform view frustum culling from a specific camera viewpoint
  */
 void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
-        ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, bool is_multiview)
+        ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, int layer)
 {
     std::vector<Node*> scene_objects;
     LightList& lights = scene->getLights();
@@ -165,8 +182,7 @@ void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
 
     render_data_vector->clear();
     scene_objects.clear();
-    rstate.is_multiview = is_multiview;
-    rstate.material_override = NULL;
+
     rstate.shader_manager = shader_manager;
     rstate.uniforms.u_view = camera->getViewMatrix();
     rstate.uniforms.u_proj = camera->getProjectionMatrix();
@@ -192,14 +208,13 @@ void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
     //    frustum_cull(camera->owner_object()->transform()->position(), object, frustum, scene_objects, scene->get_frustum_culling(), 0);
     rstate.scene->lockColliders();
     rstate.scene->clearVisibleColliders();
-    frustum_cull(campos, scene, object, frustum, scene_objects, scene->get_frustum_culling(), 0);
+    frustum_cull(campos, scene, object, frustum, scene_objects, scene->get_frustum_culling(), 0, layer);
     rstate.scene->unlockColliders();
     if (DEBUG_RENDERER) {
         LOGD("FRUSTUM: end frustum culling for root %s\n", object->name().c_str());
     }
     // 3. do occlusion culling, if enabled
     occlusion_cull(rstate, scene_objects, render_data_vector);
-
 }
 
 
