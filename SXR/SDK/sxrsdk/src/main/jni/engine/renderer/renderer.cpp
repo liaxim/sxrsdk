@@ -53,7 +53,7 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
         float frustum[6][4], std::vector<Node*>& scene_objects,
         bool need_cull, int planeMask, int layer)
 {
-
+    LOGI("Renderer::frustum_cull: object: %s", object->name().c_str());
     // frustumCull() return 3 possible values:
     // 0 when the HBV of the object is completely outside the frustum: cull itself and all its children out
     // 1 when the HBV of the object is intersecting the frustum but the object itself is not: cull it out and continue culling test with its children
@@ -68,6 +68,7 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
     //allows for on demand calculation of the camera distance; usually matters
     //when transparent objects are in play
     RenderData* renderData = object->render_data();
+    int objectLayer;
     if (nullptr != renderData) {
         renderData->setCameraDistanceLambda([object, camera_position]() {
             // Transform the bounding volume
@@ -82,13 +83,9 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
             // this distance will be used when sorting transparent objects
             return distance;
         });
-        if (layer != renderData->layer()) {
-            LOGI("Renderer::frustum_cull: object (%d) doesn't belong to the current layer (%d)", renderData->layer(), layer);
-            return;
-        }
-    } else if (0 != layer) {
-        LOGI("Renderer::frustum_cull: culling object without render data for non-default layer (%d)", layer);
-        return;
+        objectLayer = renderData->layer();
+    } else {
+        objectLayer = 0;
     }
 
     if (need_cull) {
@@ -100,7 +97,10 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
 
         if (cullVal >= 2) {
             object->setCullStatus(false);
-            scene_objects.push_back(object);
+            if (objectLayer == layer) {
+                LOGI("Renderer::frustum_cull: adding to layer %d", layer);
+                scene_objects.push_back(object);
+            }
         }
 
         if (cullVal == 3) {
@@ -109,7 +109,10 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
         }
     } else {
         object->setCullStatus(false);
-        scene_objects.push_back(object);
+        if (objectLayer == layer) {
+            LOGI("Renderer::frustum_cull: adding to layer %d", layer);
+            scene_objects.push_back(object);
+        }
     }
     scene->pick(object);
     const std::vector<Node*> children = object->children();

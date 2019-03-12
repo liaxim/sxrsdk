@@ -72,6 +72,7 @@ public class SXRScene extends SXRHybridObject implements PrettyPrint, IScriptabl
         super(gvrContext, NativeScene.ctor());
 
         mSceneRoot = new SXRNode(gvrContext);
+        mSceneRoot.setName("sceneroot");
         NativeScene.setSceneRoot(getNative(), mSceneRoot.getNative());
 
         NativeScene.setJava(getNative(), this);
@@ -98,6 +99,7 @@ public class SXRScene extends SXRHybridObject implements PrettyPrint, IScriptabl
         cameraRig.attachRightCamera(rightCamera);
         cameraRig.attachCenterCamera(centerCamera);
 
+        cameraRig.getOwnerObject().setName("sxrcamerarig");
         addNode(cameraRig.getOwnerObject());
 
         setMainCameraRig(cameraRig);
