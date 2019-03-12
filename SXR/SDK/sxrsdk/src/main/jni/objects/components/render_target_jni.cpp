@@ -59,7 +59,9 @@ Java_com_samsungxr_NativeRenderTarget_render(JNIEnv *env, jobject obj, jlong ren
     target->setCamera(reinterpret_cast<Camera*>(camera));
     javaNode = env->NewLocalRef(javaNode);
     gRenderer->getInstance()->renderRenderTarget(scene, javaNode, target, reinterpret_cast<ShaderManager*>(shader_manager),
-                                                 reinterpret_cast<RenderTexture*>(posteffectrenderTextureA), reinterpret_cast<RenderTexture*>(posteffectRenderTextureB));
+                                                 reinterpret_cast<RenderTexture*>(posteffectrenderTextureA),
+                                                 reinterpret_cast<RenderTexture*>(posteffectRenderTextureB),
+                                                 target->getRenderDataVector());
     env->DeleteLocalRef(javaNode);
 }
 

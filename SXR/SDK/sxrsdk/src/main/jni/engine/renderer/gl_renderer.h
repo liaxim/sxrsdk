@@ -76,7 +76,7 @@ public:
     virtual VertexBuffer* createVertexBuffer(const char* descriptor, int vcount);
 
     virtual void renderRenderTarget(Scene*, jobject javaNode, RenderTarget* renderTarget, ShaderManager* shader_manager,
-            RenderTexture* post_effect_render_texture_a, RenderTexture* post_effect_render_texture_b);
+            RenderTexture* post_effect_render_texture_a, RenderTexture* post_effect_render_texture_b, std::vector<RenderData*>* render_data_vector);
     void makeShadowMaps(Scene* scene, jobject javaNode, ShaderManager* shader_manager);
 
     void set_face_culling(int cull_face);

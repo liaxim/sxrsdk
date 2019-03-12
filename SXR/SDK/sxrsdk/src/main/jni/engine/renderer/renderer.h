@@ -165,7 +165,7 @@ public:
     virtual RenderTarget* createRenderTarget(RenderTexture*, const RenderTarget*) = 0;
 
     virtual void renderRenderTarget(Scene*, jobject javaSceneObject, RenderTarget* renderTarget, ShaderManager* shader_manager,
-                                    RenderTexture* post_effect_render_texture_a, RenderTexture* post_effect_render_texture_b)=0;
+                                    RenderTexture* post_effect_render_texture_a, RenderTexture* post_effect_render_texture_b, std::vector<RenderData*>* render_data_vector)=0;
     virtual void restoreRenderStates(RenderData* render_data) = 0;
     virtual void setRenderStates(RenderData* render_data, RenderState& rstate) = 0;
     virtual Texture* createSharedTexture(int id) = 0;
@@ -208,8 +208,8 @@ private:
     RenderTarget* mRightRenderTarget[3];
     RenderTarget* mMultiviewRenderTarget[3];
     static bool isVulkan_;
-    virtual void build_frustum(float frustum[6][4], const float *vp_matrix);
 
+    void build_frustum(float frustum[6][4], const float *vp_matrix);
     void frustum_cull(glm::vec3 camera_position, Scene *scene, Node *object,
                       float frustum[6][4], std::vector<Node *> &scene_objects,
                       bool continue_cull, int planeMask, int layer);

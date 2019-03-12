@@ -106,11 +106,15 @@ public class SXRCameraRig extends SXRComponent implements PrettyPrint {
         getOwnerObject().attachCameraRig(this);
 
         headTransformObject = new SXRNode(gvrContext);
+        headTransformObject.setName("headTransformObject");
         addHeadTransformObject();
 
         leftCameraObject = new SXRNode(gvrContext);
+        leftCameraObject.setName("leftCamera");
         rightCameraObject = new SXRNode(gvrContext);
+        rightCameraObject.setName("rightCamera");
         centerCameraObject = new SXRNode(gvrContext);
+        centerCameraObject.setName("centerCamera");
 
         headTransformObject.addChildObject(leftCameraObject);
         headTransformObject.addChildObject(rightCameraObject);

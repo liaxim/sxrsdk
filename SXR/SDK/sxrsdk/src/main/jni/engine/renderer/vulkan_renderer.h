@@ -130,7 +130,7 @@ public:
                                  const char* vertexDescriptor, const char* vertexShader,
                                  const char* fragmentShader);
     virtual void renderRenderTarget(Scene*, jobject javaNode, RenderTarget* renderTarget, ShaderManager* shader_manager,
-                                    RenderTexture* post_effect_render_texture_a, RenderTexture* post_effect_render_texture_b);
+                                    RenderTexture* post_effect_render_texture_a, RenderTexture* post_effect_render_texture_b, std::vector<RenderData*>* render_data_vector);
 
     virtual Light* createLight(const char* uniformDescriptor, const char* textureDescriptor);
 

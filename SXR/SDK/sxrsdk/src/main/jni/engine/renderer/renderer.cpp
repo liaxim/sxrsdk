@@ -84,6 +84,7 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
             return distance;
         });
         objectLayer = renderData->layer();
+        LOGI("Renderer::frustum_cull: object's layer is %d", objectLayer);
     } else {
         objectLayer = 0;
     }
@@ -100,6 +101,8 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
             if (objectLayer == layer) {
                 LOGI("Renderer::frustum_cull: adding to layer %d", layer);
                 scene_objects.push_back(object);
+            } else {
+                LOGI("Renderer::frustum_cull: skipped for layer %d", layer);
             }
         }
 
@@ -112,6 +115,8 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
         if (objectLayer == layer) {
             LOGI("Renderer::frustum_cull: adding to layer %d", layer);
             scene_objects.push_back(object);
+        } else {
+            LOGI("Renderer::frustum_cull: skipped");
         }
     }
     scene->pick(object);

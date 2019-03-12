@@ -78,7 +78,6 @@ public:
         mBackColor[1] = g;
         mBackColor[2] = b;
         mBackColor[3] = a;
-
     }
 
     int getSampleCount(){
