@@ -59,7 +59,7 @@ void RenderTarget::beginRendering(Renderer *renderer) {
     mRenderState.viewportWidth = mRenderTexture->width();
     mRenderState.viewportHeight = mRenderTexture->height();
     mRenderState.sampleCount = mRenderTexture->getSampleCount();
-    if (-1 != mRenderState.camera->background_color_r())
+//    if (-1 != mRenderState.camera->background_color_r())
     {
 //        mRenderTexture->setBackgroundColor(mRenderState.camera->background_color_r(),
 //                                           mRenderState.camera->background_color_g(),
