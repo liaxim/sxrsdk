@@ -272,13 +272,15 @@ namespace sxr
                     GL(renderRenderData(rstate, rdata));
                 }
             }
-//            uint8_t* buffer = new uint8_t[1024*1024*4];
-//            glReadPixels(0, 0, 1024, 1024, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-//            FILE *fp = fopen("/sdcard/raw.raw", "w");
-//            fwrite(buffer, 1, 1024*1024*4, fp);
-//            fclose(fp);
-//            delete[] buffer;
-
+            bool b = false;
+            if (b) {
+            uint8_t* buffer = new uint8_t[1024*1024*4];
+            glReadPixels(0, 0, 1024, 1024, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+            FILE *fp = fopen("/sdcard/raw.raw", "w");
+            fwrite(buffer, 1, 1024*1024*4, fp);
+            fclose(fp);
+            delete[] buffer;
+            }
         }
         else
         {

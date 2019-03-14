@@ -93,7 +93,7 @@ struct RenderState {
     ShaderManager*          shader_manager;
     ShadowMap*              shadow_map;
     bool                    is_shadow;
-    bool                    is_multiview;
+    bool                    is_multiview = false;
     Camera*                 camera;
     int                     sampleCount;
 };
