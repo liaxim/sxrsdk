@@ -61,9 +61,9 @@ void RenderTarget::beginRendering(Renderer *renderer) {
     mRenderState.sampleCount = mRenderTexture->getSampleCount();
     if (-1 != mRenderState.camera->background_color_r())
     {
-        mRenderTexture->setBackgroundColor(mRenderState.camera->background_color_r(),
-                                           mRenderState.camera->background_color_g(),
-                                           mRenderState.camera->background_color_b(), mRenderState.camera->background_color_a());
+//        mRenderTexture->setBackgroundColor(mRenderState.camera->background_color_r(),
+//                                           mRenderState.camera->background_color_g(),
+//                                           mRenderState.camera->background_color_b(), mRenderState.camera->background_color_a());
     }
     mRenderTexture->beginRendering(renderer);
 }
