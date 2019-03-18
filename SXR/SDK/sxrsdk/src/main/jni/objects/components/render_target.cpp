@@ -36,11 +36,8 @@ namespace sxr {
  */
 RenderTarget::RenderTarget(RenderTexture* tex, bool is_multiview)
 : Component(RenderTarget::getComponentType()),mNextRenderTarget(nullptr),
-  mRenderTexture(tex)
+  mRenderTexture(tex),mRenderDataVector(std::make_shared< std::vector<RenderData*>>())
 {
-    mRenderDataVector[0] = std::make_shared< std::vector<RenderData*>>();
-    mRenderDataVector[1] = std::make_shared< std::vector<RenderData*>>();
-
     mRenderState.is_shadow = false;
     mRenderState.shadow_map = nullptr;
     mRenderState.material_override = NULL;
@@ -73,24 +70,17 @@ void RenderTarget::endRendering(Renderer *renderer) {
     mRenderTexture->endRendering(renderer);
 }
 RenderTarget::RenderTarget(Scene* scene)
-: Component(RenderTarget::getComponentType()), mNextRenderTarget(nullptr), mRenderTexture(nullptr)
-{
-    mRenderDataVector[0] = std::make_shared< std::vector<RenderData*>>();
-    mRenderDataVector[1] = std::make_shared< std::vector<RenderData*>>();
-
+: Component(RenderTarget::getComponentType()), mNextRenderTarget(nullptr), mRenderTexture(nullptr),mRenderDataVector(std::make_shared< std::vector<RenderData*>>()){
     mRenderState.is_shadow = false;
     mRenderState.shadow_map = nullptr;
     mRenderState.material_override = NULL;
     mRenderState.is_multiview = false;
     mRenderState.scene = scene;
+
 }
 
 RenderTarget::RenderTarget(Scene* scene, int defaultViewportW, int defaultViewportH)
-        : Component(RenderTarget::getComponentType()), mNextRenderTarget(nullptr), mRenderTexture(nullptr)
-{
-    mRenderDataVector[0] = std::make_shared< std::vector<RenderData*>>();
-    mRenderDataVector[1] = std::make_shared< std::vector<RenderData*>>();
-
+        : Component(RenderTarget::getComponentType()), mNextRenderTarget(nullptr), mRenderTexture(nullptr),mRenderDataVector(std::make_shared< std::vector<RenderData*>>()){
     mRenderState.is_shadow = false;
     mRenderState.shadow_map = nullptr;
     mRenderState.material_override = NULL;
@@ -102,11 +92,8 @@ RenderTarget::RenderTarget(Scene* scene, int defaultViewportW, int defaultViewpo
 
 RenderTarget::RenderTarget(RenderTexture* tex, const RenderTarget* source)
         : Component(RenderTarget::getComponentType()),mNextRenderTarget(nullptr),
-          mRenderTexture(tex)
+          mRenderTexture(tex), mRenderDataVector(source->mRenderDataVector)
 {
-    mRenderDataVector[0] = std::make_shared< std::vector<RenderData*>>();
-    mRenderDataVector[1] = std::make_shared< std::vector<RenderData*>>();
-
     mRenderState.is_shadow = false;
     mRenderState.shadow_map = nullptr;
     mRenderState.material_override = NULL;
@@ -120,10 +107,8 @@ RenderTarget::RenderTarget(RenderTexture* tex, const RenderTarget* source)
  */
 RenderTarget::RenderTarget()
 :   Component(RenderTarget::getComponentType()),
-    mRenderTexture(nullptr),mNextRenderTarget(nullptr)
+    mRenderTexture(nullptr),mNextRenderTarget(nullptr), mRenderDataVector(std::make_shared< std::vector<RenderData*>>())
 {
-    mRenderDataVector[0] = std::make_shared< std::vector<RenderData*>>();
-    mRenderDataVector[1] = std::make_shared< std::vector<RenderData*>>();
     mRenderState.is_multiview = false;
     mRenderState.shadow_map = nullptr;
     mRenderState.is_shadow = false;
@@ -132,13 +117,9 @@ RenderTarget::RenderTarget()
 
 void RenderTarget::cullFromCamera(Scene* scene, jobject javaNode, Camera* camera, Renderer* renderer, ShaderManager* shader_manager){
 
-    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector[0].get(), 0);
+    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector.get(),mRenderState.is_multiview);
     scene->getLights().shadersRebuilt();
-    renderer->state_sort(mRenderDataVector[0].get());
-
-    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector[1].get(), 1);
-    scene->getLights().shadersRebuilt();
-    renderer->state_sort(mRenderDataVector[1].get());
+    renderer->state_sort(mRenderDataVector.get());
 }
 
 RenderTarget::~RenderTarget()

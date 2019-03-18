@@ -60,9 +60,9 @@
 
 #define  LOG_TAG    "sxrf"
 
-#define STOP_ON_ERROR
-#define GL( func )      func; checkGLError(#func);
-//#define GL( func )      func;
+//#define STOP_ON_ERROR
+//#define GL( func )      func; checkGLError(#func);
+#define GL( func )      func;
 
 //#define EGL(func)      func; checkEGLError(#func);
 #define EGL( func )      func;
