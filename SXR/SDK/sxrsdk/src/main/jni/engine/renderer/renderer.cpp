@@ -98,7 +98,7 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
 
         if (cullVal >= 2) {
             object->setCullStatus(false);
-            if (objectLayer == layer) {
+            if (-1 == layer || objectLayer == layer) {
                 LOGD("Renderer::frustum_cull: adding to layer %d", layer);
                 scene_objects.push_back(object);
             } else {
@@ -112,7 +112,7 @@ void Renderer::frustum_cull(glm::vec3 camera_position, Scene* scene, Node* objec
         }
     } else {
         object->setCullStatus(false);
-        if (objectLayer == layer) {
+        if (-1 == layer || objectLayer == layer) {
             LOGD("Renderer::frustum_cull: adding to layer %d", layer);
             scene_objects.push_back(object);
         } else {

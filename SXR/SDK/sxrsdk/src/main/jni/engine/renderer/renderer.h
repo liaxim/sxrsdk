@@ -155,7 +155,7 @@ public:
     void updateTransforms(RenderState& rstate, UniformBlock* block, RenderData*);
     virtual void initializeStats();
     virtual void cullFromCamera(Scene *scene, jobject javaSceneObject, Camera* camera,
-                                ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, int layer = 0);
+                                ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, int layer = -1);
     virtual void set_face_culling(int cull_face) = 0;
 
     virtual void renderRenderData(RenderState& rstate, RenderData* render_data);

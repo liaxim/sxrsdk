@@ -117,7 +117,7 @@ RenderTarget::RenderTarget()
 
 void RenderTarget::cullFromCamera(Scene* scene, jobject javaNode, Camera* camera, Renderer* renderer, ShaderManager* shader_manager){
 
-    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector.get(),mRenderState.is_multiview);
+    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector.get());
     scene->getLights().shadersRebuilt();
     renderer->state_sort(mRenderDataVector.get());
 }
