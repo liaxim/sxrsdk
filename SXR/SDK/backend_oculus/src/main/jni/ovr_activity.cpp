@@ -25,6 +25,9 @@
 #include <VrApi_Types.h>
 #include <engine/renderer/vulkan_renderer.h>
 #include <objects/textures/render_texture.h>
+#include <objects/scene.h>
+#include <objects/components/perspective_camera.h>
+#include <objects/components/render_target.h>
 
 static const char* activityClassName = "android/app/Activity";
 static const char* applicationClassName = "com/samsungxr/SXRApplication";
@@ -264,10 +267,9 @@ void SXRActivity::copyVulkanTexture(int texSwapChainIndex, int eye){
     reinterpret_cast<VulkanRenderer*>(gRenderer)->unmapRenderToOculus(renderTarget);
 }
 
-void SXRActivity::onDrawFrame(jobject jViewManager) {
-    ovrFrameParms parms = vrapi_DefaultFrameParms(&oculusJavaGlThread_, VRAPI_FRAME_INIT_DEFAULT,
-                                                  vrapi_GetTimeInSeconds(),
-                                                  NULL);
+void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
+{
+    ovrFrameParms parms = vrapi_DefaultFrameParms(&oculusJavaGlThread_, VRAPI_FRAME_INIT_DEFAULT, vrapi_GetTimeInSeconds(), nullptr);
     parms.FrameIndex = ++frameIndex;
     parms.SwapInterval = 1;
     parms.PerformanceParms = oculusPerformanceParms_;
@@ -312,11 +314,51 @@ void SXRActivity::onDrawFrame(jobject jViewManager) {
     }
     oculusJavaGlThread_.Env->CallVoidMethod(jViewManager, onBeforeDrawEyesMethodId);
 
+    Renderer* renderer = Renderer::getInstance();
+    Scene* mainScene = Scene::main_scene();
+
     // Render the eye images.
     for (int eye = 0; eye < (use_multiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX); eye++) {
         int textureSwapChainIndex = frameBuffer_[eye].mTextureSwapChainIndex;
-        oculusJavaGlThread_.Env->CallVoidMethod(jViewManager, onDrawEyeMethodId, eye,
-                                                textureSwapChainIndex, use_multiview);
+        RenderTarget* renderTarget = renderer->getRenderTarget(textureSwapChainIndex, eye);
+        Camera* centerCamera = static_cast<Camera*>(cameraRig_->center_camera());
+
+        if (0 == eye) {
+            Camera* leftCamera = cameraRig_->left_camera();
+
+            //capture3DScreenShot(renderTarget, false);
+
+            renderer->cullFromCamera(mainScene, javaMainScene, centerCamera,
+                                     mMaterialShaderManager, &mRenderDataVector[0], 0);
+            renderer->state_sort(&mRenderDataVector[0]);
+
+            renderer->cullFromCamera(mainScene, javaMainScene, centerCamera,
+                                     mMaterialShaderManager, &mRenderDataVector[1], 1);
+            renderer->state_sort(&mRenderDataVector[1]);
+
+            mainScene->getLights().shadersRebuilt();
+
+
+            //captureCenterEye(renderTarget, false);
+            //renderTarget.render(mMainScene, leftCamera, mRenderBundle.getShaderManager(), mRenderBundle.getPostEffectRenderTextureA(), mRenderBundle.getPostEffectRenderTextureB());
+            renderTarget->setCamera(leftCamera);
+
+            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene, renderTarget, mMaterialShaderManager,
+                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB, &mRenderDataVector[0]);
+
+            //captureLeftEye(renderTarget, false);
+
+        } else if (1 == eye) {
+            Camera* rightCamera = cameraRig_->right_camera();
+            renderTarget->setCamera(rightCamera);
+            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene, renderTarget,
+                                         mMaterialShaderManager,
+                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB,
+                                         &mRenderDataVector[0]);
+
+            //captureRightEye(renderTarget, false);
+            //captureFinish();
+        }
 
         if (gRenderer->isVulkanInstance()) {
             copyVulkanTexture(textureSwapChainIndex, eye);
@@ -396,12 +438,15 @@ void SXRActivity::onDrawFrame(jobject jViewManager) {
         return vrapi_GetSystemStatusInt(&oculusJavaMainThread_, VRAPI_SYS_STATUS_DOCKED);
     }
 
-    bool SXRActivity::usingMultiview() const {
-        LOGD("Activity: usingMultview = %d", use_multiview);
-        return use_multiview;
-    }
-
-    void SXRActivity::recenterPose() const {
-        vrapi_RecenterPose(oculusMobile_);
-    }
+void SXRActivity::recenterPose() const {
+    vrapi_RecenterPose(oculusMobile_);
 }
+
+void SXRActivity::initialize(sxr::ShaderManager* shaderManager, sxr::RenderTexture* textureA,
+                             sxr::RenderTexture* textureB) {
+    mMaterialShaderManager = shaderManager;
+    mPostEffectRenderTextureA = textureA;
+    mPostEffectRenderTextureB = textureB;
+}
+
+} // namespace sxr
