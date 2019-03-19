@@ -27,8 +27,10 @@
 #include "VrApi_Types.h"
 
 namespace sxr {
-    class CameraRig;
-    struct RenderTextureInfo;
+
+class CameraRig;
+struct RenderTextureInfo;
+class RenderTarget;
 
     class SXRActivity
     {
@@ -61,6 +63,7 @@ namespace sxr {
         ovrMobile* oculusMobile_ = nullptr;
         long long frameIndex = 1;
         FrameBufferObject frameBuffer_[VRAPI_FRAME_LAYER_EYE_MAX];
+        FrameBufferObject cursorBuffer_[VRAPI_FRAME_LAYER_EYE_MAX];
         ovrMatrix4f projectionMatrix_;
         ovrMatrix4f texCoordsTanAnglesMatrix_;
         ovrPerformanceParms oculusPerformanceParms_;
@@ -83,6 +86,9 @@ namespace sxr {
         RenderTexture* mPostEffectRenderTextureA = nullptr;
         RenderTexture* mPostEffectRenderTextureB = nullptr;
         std::vector<RenderData*> mRenderDataVector[2];
+
+        RenderTexture* mCursorRenderTextures[VRAPI_FRAME_LAYER_EYE_MAX][4];
+        RenderTarget* mCursorRenderTarget[VRAPI_FRAME_LAYER_EYE_MAX][4];
 
     public:
         void onSurfaceCreated(JNIEnv& env);

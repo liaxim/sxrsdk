@@ -161,7 +161,9 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
             parms.Flags |= VRAPI_MODE_FLAG_RESET_WINDOW_FULLSCREEN;
         }
         parms.Flags |= VRAPI_MODE_FLAG_NATIVE_WINDOW;
-        //@todo consider VRAPI_MODE_FLAG_CREATE_CONTEXT_NO_ERROR as a release-build optimization
+#ifdef NDEBUG
+        parms.Flags |= VRAPI_MODE_FLAG_CREATE_CONTEXT_NO_ERROR;
+#endif
 
         ANativeWindow *nativeWindow = ANativeWindow_fromSurface(&env, jsurface_);
         if (nullptr == nativeWindow) {
@@ -222,6 +224,34 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
                                  mHeightConfiguration, mMultisamplesConfiguration,
                                  mResolveDepthConfiguration,
                                  mDepthTextureFormatConfiguration);
+
+        cursorBuffer_[eye].create(mColorTextureFormatConfiguration, mWidthConfiguration,
+                                 mHeightConfiguration, mMultisamplesConfiguration,
+                                 mResolveDepthConfiguration,
+                                 mDepthTextureFormatConfiguration);
+    }
+
+    const int cnt = vrapi_GetTextureSwapChainLength(cursorBuffer_->mColorTextureSwapChain);
+    for (int i = 0; i < cnt; ++i) {
+        for (int j = 0; j < VRAPI_FRAME_LAYER_EYE_MAX; ++j) {
+            FrameBufferObject fbo = cursorBuffer_[j];
+
+            RenderTextureInfo renderTextureInfo;
+            renderTextureInfo.fboId = fbo.getRenderBufferFBOId(i);
+            renderTextureInfo.fboHeight = fbo.getHeight();
+            renderTextureInfo.fboWidth = fbo.getWidth();
+            renderTextureInfo.multisamples = mMultisamplesConfiguration;
+            renderTextureInfo.useMultiview = use_multiview;
+            renderTextureInfo.texId = fbo.getColorTexId(i);
+            renderTextureInfo.viewport[0] = x;
+            renderTextureInfo.viewport[1] = y;
+            renderTextureInfo.viewport[2] = width;
+            renderTextureInfo.viewport[3] = height;
+
+            mCursorRenderTextures[j][i] = Renderer::getInstance()->createRenderTexture(renderTextureInfo);
+            constexpr bool NO_MULTIVIEW = false;
+            mCursorRenderTarget[j][i] = Renderer::getInstance()->createRenderTarget(mCursorRenderTextures[j][i], NO_MULTIVIEW);
+        }
     }
 
     // default viewport same as window size
@@ -294,9 +324,25 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
         if (CameraRig::CameraRigType::FREEZE != cameraRig_->camera_rig_type()) {
             eyeTexture.HeadPose = updatedTracking.HeadPose;
         }
+
+        ++parms.LayerCount;
+
+        ovrFrameLayerTexture& cursorTexture = parms.Layers[1].Textures[eye];
+        cursorTexture.ColorTextureSwapChain = cursorBuffer_[use_multiview ? 0
+                                                                      : eye].mColorTextureSwapChain;
+        cursorTexture.DepthTextureSwapChain = cursorBuffer_[use_multiview ? 0
+                                                                      : eye].mDepthTextureSwapChain;
+        cursorTexture.TextureSwapChainIndex = cursorBuffer_[use_multiview ? 0
+                                                                      : eye].mTextureSwapChainIndex;
+
+        ovrMatrix4f identity = ovrMatrix4f_CreateIdentity();
+        cursorTexture.TexCoordsFromTanAngles = ovrMatrix4f_TanAngleMatrixFromUnitSquare(&identity);
+        cursorTexture.HeadPose = updatedTracking.HeadPose;
     }
 
     parms.Layers[0].Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
+    parms.Layers[1].Flags |= VRAPI_FRAME_LAYER_FLAG_CHROMATIC_ABERRATION_CORRECTION;
+
     if (CameraRig::CameraRigType::FREEZE == cameraRig_->camera_rig_type()) {
         parms.Layers[0].Flags |= VRAPI_FRAME_LAYER_FLAG_FIXED_TO_VIEW;
     } else {
@@ -356,6 +402,18 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
                                          mPostEffectRenderTextureA, mPostEffectRenderTextureB,
                                          &mRenderDataVector[0]);
 
+//            const float defaultLayerAlpha = rightCamera->background_color_a();
+//            rightCamera->set_background_color_a(0);
+//
+//            mRightCursorRenderTarget[textureSwapChainIndex]->setCamera(rightCamera);
+//            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene,
+//                                         mRightCursorRenderTarget[textureSwapChainIndex],
+//                                         mMaterialShaderManager,
+//                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB,
+//                                         &mRenderDataVector[1]);
+//
+//            rightCamera->set_background_color_a(defaultLayerAlpha);
+
             //captureRightEye(renderTarget, false);
             //captureFinish();
         }
@@ -365,6 +423,52 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
         } else {
             endRenderingEye(eye);
             FrameBufferObject::unbind();
+        }
+
+        // cursor texture/layer
+        textureSwapChainIndex = cursorBuffer_[eye].mTextureSwapChainIndex;
+        renderTarget = mCursorRenderTarget[eye][textureSwapChainIndex];
+
+        if (0 == eye) {
+            Camera* leftCamera = cameraRig_->left_camera();
+
+            //capture3DScreenShot(renderTarget, false);
+
+            //captureCenterEye(renderTarget, false);
+            //renderTarget.render(mMainScene, leftCamera, mRenderBundle.getShaderManager(), mRenderBundle.getPostEffectRenderTextureA(), mRenderBundle.getPostEffectRenderTextureB());
+//            renderTarget->setCamera(leftCamera);
+//
+//            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene, renderTarget, mMaterialShaderManager,
+//                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB, &mRenderDataVector[0]);
+
+            //captureLeftEye(renderTarget, false);
+
+        } else if (1 == eye) {
+            Camera* rightCamera = cameraRig_->right_camera();
+            renderTarget->setCamera(rightCamera);
+
+            const float defaultLayerAlpha = rightCamera->background_color_a();
+            rightCamera->set_background_color_a(0);
+
+            renderTarget->setCamera(rightCamera);
+            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene,
+                                         renderTarget,
+                                         mMaterialShaderManager,
+                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB,
+                                         &mRenderDataVector[1]);
+
+            rightCamera->set_background_color_a(defaultLayerAlpha);
+
+            //captureRightEye(renderTarget, false);
+            //captureFinish();
+        }
+
+        if (gRenderer->isVulkanInstance()) {
+            copyVulkanTexture(textureSwapChainIndex, eye);
+        } else {
+            cursorBuffer_[eye].resolve();
+            cursorBuffer_[eye].advance();
+            cursorBuffer_[eye].unbind();
         }
     }
 
