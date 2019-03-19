@@ -17,6 +17,8 @@
 #ifndef ACTIVITY_JNI_H
 #define ACTIVITY_JNI_H
 
+#include <shaders/shader_manager.h>
+#include <objects/textures/render_texture.h>
 #include "ovr_gear_controller.h"
 #include "ovr_framebufferobject.h"
 #include "objects/components/camera.h"
@@ -25,8 +27,10 @@
 #include "VrApi_Types.h"
 
 namespace sxr {
-    class CameraRig;
-    struct RenderTextureInfo;
+
+class CameraRig;
+struct RenderTextureInfo;
+class RenderTarget;
 
     class SXRActivity
     {
@@ -59,6 +63,7 @@ namespace sxr {
         ovrMobile* oculusMobile_ = nullptr;
         long long frameIndex = 1;
         FrameBufferObject frameBuffer_[VRAPI_FRAME_LAYER_EYE_MAX];
+        FrameBufferObject cursorBuffer_[VRAPI_FRAME_LAYER_EYE_MAX];
         ovrMatrix4f projectionMatrix_;
         ovrMatrix4f texCoordsTanAnglesMatrix_;
         ovrPerformanceParms oculusPerformanceParms_;
@@ -77,11 +82,19 @@ namespace sxr {
         GearController *gearController;
         int mainThreadId_ = 0;
 
+        ShaderManager* mMaterialShaderManager = nullptr;
+        RenderTexture* mPostEffectRenderTextureA = nullptr;
+        RenderTexture* mPostEffectRenderTextureB = nullptr;
+        std::vector<RenderData*> mRenderDataVector[2];
+
+        RenderTexture* mCursorRenderTextures[VRAPI_FRAME_LAYER_EYE_MAX][4];
+        RenderTarget* mCursorRenderTarget[VRAPI_FRAME_LAYER_EYE_MAX][4];
+
     public:
         void onSurfaceCreated(JNIEnv& env);
         void copyVulkanTexture(int texSwapChainIndex, int eye);
         void onSurfaceChanged(JNIEnv& env, jobject jsurface);
-        void onDrawFrame(jobject jViewManager);
+        void onDrawFrame(jobject jViewManager, jobject javaMainScene);
         int initializeVrApi();
         static void uninitializeVrApi();
         void leaveVrMode();
@@ -89,13 +102,15 @@ namespace sxr {
         void showConfirmQuit();
 
         bool isHmtConnected() const;
-        bool usingMultiview() const;
 
         void setGearController(GearController *controller){
             gearController = controller;
         }
 
         void recenterPose() const;
+
+        void initialize(sxr::ShaderManager *shaderManager, sxr::RenderTexture *textureA,
+                    sxr::RenderTexture *textureB);
     };
 
 }

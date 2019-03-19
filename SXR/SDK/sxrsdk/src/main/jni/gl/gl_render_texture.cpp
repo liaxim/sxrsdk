@@ -317,6 +317,16 @@ void GLRenderTexture::endRendering(Renderer* renderer)
     const int height = image->getHeight();
     int fbid = getFrameBufferId();
 
+    bool b = false;
+    if (b) {
+        uint8_t* buffer = new uint8_t[1024*1024*4];
+        glReadPixels(0, 0, 1024, 1024, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+        FILE *fp = fopen("/sdcard/raw.raw", "w");
+        fwrite(buffer, 1, 1024*1024*4, fp);
+        fclose(fp);
+        delete[] buffer;
+    }
+
     const bool isFbo = 0 != renderTexture_gl_frame_buffer_->id();
     invalidateFrameBuffer(GL_DRAW_FRAMEBUFFER, isFbo, false, true);
 
