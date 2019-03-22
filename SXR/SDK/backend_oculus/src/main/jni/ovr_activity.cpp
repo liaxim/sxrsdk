@@ -225,8 +225,8 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
                                  mResolveDepthConfiguration,
                                  mDepthTextureFormatConfiguration);
 
-        cursorBuffer_[eye].create(mColorTextureFormatConfiguration, mWidthConfiguration,
-                                 mHeightConfiguration, mMultisamplesConfiguration,
+        cursorBuffer_[eye].create(mColorTextureFormatConfiguration, mWidthConfiguration/2,
+                                 mHeightConfiguration/2, mMultisamplesConfiguration,
                                  mResolveDepthConfiguration,
                                  mDepthTextureFormatConfiguration);
     }
@@ -404,7 +404,8 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
             FrameBufferObject::unbind();
         }
 
-        // cursor texture/layer
+        // cursor texture/layer; assumes dynamic texture - can be optimized for a cursor that never
+        // changes
         textureSwapChainIndex = cursorBuffer_[eye].mTextureSwapChainIndex;
         renderTarget = mCursorRenderTarget[eye][textureSwapChainIndex];
 
