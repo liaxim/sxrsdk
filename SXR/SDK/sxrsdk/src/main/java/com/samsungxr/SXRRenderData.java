@@ -44,10 +44,6 @@ public final class SXRRenderData extends SXRComponent implements IRenderable, Pr
     private boolean mLightMapEnabled;
     private boolean isLightEnabled;
 
-    public void setLayer(int layer) {
-        NativeRenderData.setLayer(getNative(), layer);
-    }
-
     /**
      * Rendering hints.
      *
@@ -832,6 +828,19 @@ public final class SXRRenderData extends SXRComponent implements IRenderable, Pr
     public SXRRenderData setStencilTest(boolean flag) {
         NativeRenderData.setStencilTest(getNative(), flag);
         return this;
+    }
+
+    public enum LayerType {
+        WorldLocked,
+        HeadLocked
+    }
+
+    /**
+     *
+     * @param layer
+     */
+    public void setLayer(LayerType layer) {
+        NativeRenderData.setLayer(getNative(), LayerType.HeadLocked == layer ? 1 : 0);
     }
 }
 
