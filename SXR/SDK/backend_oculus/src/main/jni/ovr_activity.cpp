@@ -252,8 +252,8 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
             renderTextureInfo.texId = fbo.getColorTexId(i);
             renderTextureInfo.viewport[0] = x;
             renderTextureInfo.viewport[1] = y;
-            renderTextureInfo.viewport[2] = width;
-            renderTextureInfo.viewport[3] = height;
+            renderTextureInfo.viewport[2] = fbo.getHeight();
+            renderTextureInfo.viewport[3] = fbo.getWidth();
 
             mCursorRenderTextures[j][i] = Renderer::getInstance()->createRenderTexture(renderTextureInfo);
             constexpr bool NO_MULTIVIEW = false;
@@ -409,7 +409,7 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
         renderTarget = mCursorRenderTarget[eye][textureSwapChainIndex];
 
         Camera* camera = eye ? cameraRig_->right_camera() : cameraRig_->left_camera();
-        float alphaOld = camera->background_color_r();
+        float alphaOld = camera->background_color_a();
         camera->set_background_color_a(0.0);
         renderTarget->setCamera(camera);
         renderer->renderRenderTarget(Scene::main_scene(), javaMainScene,
