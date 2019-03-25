@@ -356,13 +356,14 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
     Scene* mainScene = Scene::main_scene();
 
     // Render the eye images.
+    int cursorLayerSize = 0;
     for (int eye = 0; eye < (use_multiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX); eye++) {
         int textureSwapChainIndex = frameBuffer_[eye].mTextureSwapChainIndex;
-        RenderTarget* renderTarget = renderer->getRenderTarget(textureSwapChainIndex, eye);
-        Camera* centerCamera = static_cast<Camera*>(cameraRig_->center_camera());
+        RenderTarget *renderTarget = renderer->getRenderTarget(textureSwapChainIndex, eye);
+        Camera *centerCamera = static_cast<Camera *>(cameraRig_->center_camera());
 
         if (0 == eye) {
-            Camera* leftCamera = cameraRig_->left_camera();
+            Camera *leftCamera = cameraRig_->left_camera();
 
             //capture3DScreenShot(renderTarget, false);
 
@@ -372,7 +373,10 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
 
             renderer->cullFromCamera(mainScene, javaMainScene, centerCamera,
                                      mMaterialShaderManager, &mRenderDataVector[1], 1);
-            renderer->state_sort(&mRenderDataVector[1]);
+            cursorLayerSize = mRenderDataVector[1].size();
+            if (cursorLayerSize) {
+                renderer->state_sort(&mRenderDataVector[1]);
+            }
 
             mainScene->getLights().shadersRebuilt();
 
@@ -381,12 +385,14 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
             //renderTarget.render(mMainScene, leftCamera, mRenderBundle.getShaderManager(), mRenderBundle.getPostEffectRenderTextureA(), mRenderBundle.getPostEffectRenderTextureB());
             renderTarget->setCamera(leftCamera);
 
-            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene, renderTarget, mMaterialShaderManager,
-                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB, &mRenderDataVector[0]);
+            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene, renderTarget,
+                                         mMaterialShaderManager,
+                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB,
+                                         &mRenderDataVector[0]);
             //captureLeftEye(renderTarget, false);
 
         } else if (1 == eye) {
-            Camera* rightCamera = cameraRig_->right_camera();
+            Camera *rightCamera = cameraRig_->right_camera();
             renderTarget->setCamera(rightCamera);
             renderer->renderRenderTarget(Scene::main_scene(), javaMainScene, renderTarget,
                                          mMaterialShaderManager,
@@ -404,20 +410,23 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
             FrameBufferObject::unbind();
         }
 
-        // cursor texture/layer; assumes dynamic texture - can be optimized for a cursor that never
-        // changes
-        textureSwapChainIndex = cursorBuffer_[eye].mTextureSwapChainIndex;
-        renderTarget = mCursorRenderTarget[eye][textureSwapChainIndex];
+        if (cursorLayerSize > 0) {
+            // cursor texture/layer; assumes dynamic texture - can be optimized for a cursor that never
+            // changes
+            textureSwapChainIndex = cursorBuffer_[eye].mTextureSwapChainIndex;
+            renderTarget = mCursorRenderTarget[eye][textureSwapChainIndex];
 
-        Camera* camera = eye ? cameraRig_->right_camera() : cameraRig_->left_camera();
-        float alphaOld = camera->background_color_a();
-        camera->set_background_color_a(0.0);
-        renderTarget->setCamera(camera);
-        renderer->renderRenderTarget(Scene::main_scene(), javaMainScene,
-                                     renderTarget,
-                                     mMaterialShaderManager,
-                                     mPostEffectRenderTextureA, mPostEffectRenderTextureB,
-                                     &mRenderDataVector[1]);
+            Camera *camera = eye ? cameraRig_->right_camera() : cameraRig_->left_camera();
+            float alphaOld = camera->background_color_a();
+            camera->set_background_color_a(0.0);
+            renderTarget->setCamera(camera);
+            renderer->renderRenderTarget(Scene::main_scene(), javaMainScene,
+                                         renderTarget,
+                                         mMaterialShaderManager,
+                                         mPostEffectRenderTextureA, mPostEffectRenderTextureB,
+                                         &mRenderDataVector[1]);
+            camera->set_background_color_a(alphaOld);
+        }
 
         if (gRenderer->isVulkanInstance()) {
             copyVulkanTexture(textureSwapChainIndex, eye);
@@ -426,7 +435,6 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
             cursorBuffer_[eye].advance();
             cursorBuffer_[eye].unbind();
         }
-        camera->set_background_color_a(alphaOld);
     }
 
     // check if the controller is available
@@ -438,14 +446,15 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
     ovrSubmitFrameDescription2 parms = {0};
     parms.FrameIndex = ++frameIndex;
     parms.SwapInterval = 1;
+    parms.DisplayTime = predictedDisplayTime;
+
     const ovrLayerHeader2 *layersToSubmit[] =
             {
                     &layers[0].Header,
                     &layers[1].Header,
             };
     parms.Layers = layersToSubmit;
-    parms.LayerCount = 2;
-    parms.DisplayTime = predictedDisplayTime;
+    parms.LayerCount = cursorLayerSize > 0 ? 2 : 1;
 
     ovrResult result = vrapi_SubmitFrame2(oculusMobile_, &parms);
     if (ovrSuccess != result) {
