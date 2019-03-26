@@ -111,6 +111,11 @@ class RenderTarget;
 
         void initialize(sxr::ShaderManager *shaderManager, sxr::RenderTexture *textureA,
                     sxr::RenderTexture *textureB);
+
+        static constexpr bool RENDERTARGET_STEREO = false;
+        static constexpr bool RENDERTARGET_MULTIVIEW = true;
+        static constexpr int LAYER_NORMAL = 0;
+        static constexpr int LAYER_CURSOR = 0;
     };
 
 }

@@ -174,7 +174,7 @@ bool isRenderPassEqual(RenderData* rdata1, RenderData* rdata2){
  * Perform view frustum culling from a specific camera viewpoint
  */
 void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
-        ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, int layer)
+        ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, bool isMultiview, int layer)
 {
     std::vector<Node*> scene_objects;
     LightList& lights = scene->getLights();
@@ -188,6 +188,7 @@ void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
     rstate.uniforms.u_proj = camera->getProjectionMatrix();
     rstate.shader_manager = shader_manager;
     rstate.scene = scene;
+    rstate.is_multiview = isMultiview;
     rstate.render_mask = camera->render_mask();
     rstate.uniforms.u_right = (rstate.render_mask & RenderData::RenderMaskBit::Right) ? 1 : 0;
     rstate.javaNode = javaNode;

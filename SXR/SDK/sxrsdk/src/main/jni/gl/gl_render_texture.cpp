@@ -312,31 +312,19 @@ void GLRenderTexture::beginRendering(Renderer* renderer)
 
 void GLRenderTexture::endRendering(Renderer* renderer)
 {
-    Image* image = getImage();
-    const int width = image->getWidth();
-    const int height = image->getHeight();
-    int fbid = getFrameBufferId();
-
-    bool b = false;
-    if (b) {
-        uint8_t* buffer = new uint8_t[1024*1024*4];
-        glReadPixels(0, 0, 1024, 1024, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-        FILE *fp = fopen("/sdcard/raw.raw", "w");
-        fwrite(buffer, 1, 1024*1024*4, fp);
-        fclose(fp);
-        delete[] buffer;
-    }
-
     const bool isFbo = 0 != renderTexture_gl_frame_buffer_->id();
     invalidateFrameBuffer(GL_DRAW_FRAMEBUFFER, isFbo, false, true);
 
     if (renderTexture_gl_resolve_buffer_ && mSampleCount > 1)
     {
-        glBindFramebuffer(GL_READ_FRAMEBUFFER, fbid);
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, getFrameBufferId());
         glBindFramebuffer(GL_DRAW_FRAMEBUFFER, renderTexture_gl_resolve_buffer_->id());
-        glBlitFramebuffer(0, 0, width, height,
-                          0, 0, width, height,
-                          GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
+        Image* image = getImage();
+        const int width = image->getWidth();
+        const int height = image->getHeight();
+        glBlitFramebuffer(0, 0, width, height, 0, 0, width, height, GL_COLOR_BUFFER_BIT, GL_NEAREST);
+
         invalidateFrameBuffer(GL_READ_FRAMEBUFFER, isFbo, true, false);
     }
 

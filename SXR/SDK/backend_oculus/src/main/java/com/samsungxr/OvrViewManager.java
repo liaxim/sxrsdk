@@ -191,69 +191,28 @@ class OvrViewManager extends SXRViewManager {
                     mTracerDrawEyes1.enter(); // this eye is drawn first
                     mTracerDrawEyes2.enter();
                 }
-                 SXRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.MULTIVIEW, swapChainIndex);
-                 SXRCamera camera = mMainScene.getMainCameraRig().getCenterCamera();
-                 SXRCamera left_camera = mMainScene.getMainCameraRig().getLeftCamera();
-                 renderTarget.cullFromCamera(mMainScene, camera,mRenderBundle.getShaderManager());
-
-                captureCenterEye(renderTarget, true);
-                capture3DScreenShot(renderTarget, true);
-
-                renderTarget.render(mMainScene, left_camera, mRenderBundle.getShaderManager(),mRenderBundle.getPostEffectRenderTextureA(),
-                        mRenderBundle.getPostEffectRenderTextureB());
-
-                captureRightEye(renderTarget, true);
-                captureLeftEye(renderTarget, true);
-
-                captureFinish();
+//                 SXRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.MULTIVIEW, swapChainIndex);
+//                 SXRCamera camera = mMainScene.getMainCameraRig().getCenterCamera();
+//                 SXRCamera left_camera = mMainScene.getMainCameraRig().getLeftCamera();
+//                 renderTarget.cullFromCamera(mMainScene, camera,mRenderBundle.getShaderManager());
+//
+//                captureCenterEye(renderTarget, true);
+//                capture3DScreenShot(renderTarget, true);
+//
+//                renderTarget.render(mMainScene, left_camera, mRenderBundle.getShaderManager(),mRenderBundle.getPostEffectRenderTextureA(),
+//                        mRenderBundle.getPostEffectRenderTextureB());
+//
+//                captureRightEye(renderTarget, true);
+//                captureLeftEye(renderTarget, true);
+//
+//                captureFinish();
 
                 if (DEBUG_STATS) {
                     mTracerDrawEyes1.leave();
                     mTracerDrawEyes2.leave();
                 }
 
-
-            } else {
-
-                if (eye == 1) {
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes1.enter();
-                    }
-//
-//                     SXRCamera rightCamera = mainCameraRig.getRightCamera();
-//                     SXRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.RIGHT, swapChainIndex);
-//                     renderTarget.render(mMainScene, rightCamera, mRenderBundle.getShaderManager(), mRenderBundle.getPostEffectRenderTextureA(),
-//                             mRenderBundle.getPostEffectRenderTextureB());
-//                    captureRightEye(renderTarget, false);
-//
-//                    captureFinish();
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes1.leave();
-                        mTracerDrawEyes.leave();
-                    }
-                } else {
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes1.leave();
-                        mTracerDrawEyes.leave();
-                    }
-
-
-//                    SXRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.LEFT, swapChainIndex);
-//                    SXRCamera leftCamera = mainCameraRig.getLeftCamera();
-//
-//                    capture3DScreenShot(renderTarget, false);
-//
-//                    renderTarget.cullFromCamera(mMainScene, mainCameraRig.getCenterCamera(), mRenderBundle.getShaderManager());
-//                    captureCenterEye(renderTarget, false);
-//                    renderTarget.render(mMainScene, leftCamera, mRenderBundle.getShaderManager(), mRenderBundle.getPostEffectRenderTextureA(), mRenderBundle.getPostEffectRenderTextureB());
-//
-//                    captureLeftEye(renderTarget, false);
-
-                    if (DEBUG_STATS) {
-                        mTracerDrawEyes2.leave();
-                    }
-                }
-             }
+            }
         }
     }
 

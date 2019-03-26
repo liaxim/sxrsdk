@@ -116,8 +116,9 @@ RenderTarget::RenderTarget()
 }
 
 void RenderTarget::cullFromCamera(Scene* scene, jobject javaNode, Camera* camera, Renderer* renderer, ShaderManager* shader_manager){
-
-    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector.get());
+    constexpr bool RENDERTARGET_STEREO = false;
+    constexpr int LAYER_DEFAULT = -1;
+    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector.get(), RENDERTARGET_STEREO, LAYER_DEFAULT);
     scene->getLights().shadersRebuilt();
     renderer->state_sort(mRenderDataVector.get());
 }
