@@ -50,7 +50,6 @@ class OvrViewManager extends SXRViewManager {
     private static final String TAG = Log.tag(OvrViewManager.class);
 
     protected OvrLensInfo mLensInfo;
-    protected int mCurrentEye;
 
     // Statistic debug info
     private SXRStatsLine mStatsLine;
@@ -175,47 +174,6 @@ class OvrViewManager extends SXRViewManager {
             mTracerBeforeDrawEyes.leave();
         }
     }
-
-    /**
-     * Called from the native side
-     * @param eye
-     */
-    void onDrawEye(int eye, int swapChainIndex, boolean use_multiview) {
-        mCurrentEye = eye;
-        if (!(mSensoredScene == null || !mMainScene.equals(mSensoredScene))) {
-            SXRCameraRig mainCameraRig = mMainScene.getMainCameraRig();
-
-            if (use_multiview) {
-
-                if (DEBUG_STATS) {
-                    mTracerDrawEyes1.enter(); // this eye is drawn first
-                    mTracerDrawEyes2.enter();
-                }
-//                 SXRRenderTarget renderTarget = mRenderBundle.getRenderTarget(EYE.MULTIVIEW, swapChainIndex);
-//                 SXRCamera camera = mMainScene.getMainCameraRig().getCenterCamera();
-//                 SXRCamera left_camera = mMainScene.getMainCameraRig().getLeftCamera();
-//                 renderTarget.cullFromCamera(mMainScene, camera,mRenderBundle.getShaderManager());
-//
-//                captureCenterEye(renderTarget, true);
-//                capture3DScreenShot(renderTarget, true);
-//
-//                renderTarget.render(mMainScene, left_camera, mRenderBundle.getShaderManager(),mRenderBundle.getPostEffectRenderTextureA(),
-//                        mRenderBundle.getPostEffectRenderTextureB());
-//
-//                captureRightEye(renderTarget, true);
-//                captureLeftEye(renderTarget, true);
-//
-//                captureFinish();
-
-                if (DEBUG_STATS) {
-                    mTracerDrawEyes1.leave();
-                    mTracerDrawEyes2.leave();
-                }
-
-            }
-        }
-    }
-
 
     /** Called once per frame */
     protected void onDrawFrame() {

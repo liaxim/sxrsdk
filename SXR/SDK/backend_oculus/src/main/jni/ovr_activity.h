@@ -49,7 +49,6 @@ class RenderTarget;
         jclass activityClass_ = nullptr;            // must be looked up from main thread or FindClass() will fail
         jclass applicationClass_ = nullptr;
 
-        jmethodID onDrawEyeMethodId = nullptr;
         jmethodID onBeforeDrawEyesMethodId = nullptr;
         jmethodID updateSensoredSceneMethodId = nullptr;
 
@@ -115,7 +114,7 @@ class RenderTarget;
         static constexpr bool RENDERTARGET_STEREO = false;
         static constexpr bool RENDERTARGET_MULTIVIEW = true;
         static constexpr int LAYER_NORMAL = 0;
-        static constexpr int LAYER_CURSOR = 0;
+        static constexpr int LAYER_CURSOR = 1;
     };
 
 }

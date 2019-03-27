@@ -47,7 +47,6 @@ SXRActivity::SXRActivity(JNIEnv &env, jobject activity, jobject vrAppSettings) :
         applicationClass_ = GetGlobalClassReference(env, applicationClassName);
 
         jclass viewManagerClass = env.FindClass(viewManagerClassName);
-        onDrawEyeMethodId = GetMethodId(env, viewManagerClass, "onDrawEye", "(IIZ)V");
         onBeforeDrawEyesMethodId = GetMethodId(env, viewManagerClass, "beforeDrawEyes", "()V");
         updateSensoredSceneMethodId = GetMethodId(env, viewManagerClass, "updateSensoredScene", "()Z");
 
