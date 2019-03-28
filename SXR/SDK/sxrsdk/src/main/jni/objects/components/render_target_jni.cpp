@@ -39,8 +39,6 @@ extern "C" {
     Java_com_samsungxr_NativeRenderTarget_ctorViewport(JNIEnv *env, jobject obj, jlong jscene,
                                                      jint defaultViewportW, jint defaultViewportH);
     JNIEXPORT void JNICALL
-            Java_com_samsungxr_NativeRenderTarget_attachRenderTarget(JNIEnv *env, jobject obj, jlong jrendertarget, jlong jnextrendertarget);
-    JNIEXPORT void JNICALL
     Java_com_samsungxr_NativeRenderTarget_cullFromCamera(JNIEnv *env, jobject obj, jlong jscene, jobject javaNode, jlong ptr, jlong jcamera, jlong jshaderManager);
     JNIEXPORT void JNICALL
     Java_com_samsungxr_NativeRenderTarget_render(JNIEnv *env, jobject obj, jlong renderTarget, jlong camera,
@@ -99,13 +97,6 @@ Java_com_samsungxr_NativeRenderTarget_setMainScene(JNIEnv *env, jobject obj, jlo
     RenderTarget* target = reinterpret_cast<RenderTarget*>(ptr);
     Scene* scene = reinterpret_cast<Scene*>(Sceneptr);
     target->setMainScene(scene);
-}
-
-JNIEXPORT void JNICALL
-Java_com_samsungxr_NativeRenderTarget_attachRenderTarget(JNIEnv *env, jobject obj, jlong jrendertarget, jlong jnextrendertarget){
-    RenderTarget* target = reinterpret_cast<RenderTarget*>(jrendertarget);
-    RenderTarget* nextrendertarget = reinterpret_cast<RenderTarget*>(jnextrendertarget);
-    target->attachNextRenderTarget(nextrendertarget);
 }
 
 JNIEXPORT void JNICALL

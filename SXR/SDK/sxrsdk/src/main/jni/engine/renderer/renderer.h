@@ -35,7 +35,7 @@
 typedef unsigned long Long;
 
 namespace sxr {
-extern bool use_multiview;
+extern bool gUseMultiview;
 struct RenderTextureInfo;
 class Camera;
 class Scene;
@@ -153,9 +153,9 @@ public:
     virtual VertexBuffer* createVertexBuffer(const char* descriptor, int vcount) = 0;
     virtual IndexBuffer* createIndexBuffer(int bytesPerIndex, int icount) = 0;
     void updateTransforms(RenderState& rstate, UniformBlock* block, RenderData*);
-    virtual void initializeStats();
+
     virtual void cullFromCamera(Scene *scene, jobject javaSceneObject, Camera* camera,
-                                ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, bool isMultiview, int layer);
+                                ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector);
     virtual void set_face_culling(int cull_face) = 0;
 
     virtual void renderRenderData(RenderState& rstate, RenderData* render_data);
@@ -245,6 +245,10 @@ public:
     bool useStencilBuffer(){
         return  useStencilBuffer_;
     }
+
+    static constexpr int MAX_LAYERS = 2;
+    static constexpr int LAYER_NORMAL = 0;
+    static constexpr int LAYER_CURSOR = 1;
 };
 extern Renderer* gRenderer;
 }

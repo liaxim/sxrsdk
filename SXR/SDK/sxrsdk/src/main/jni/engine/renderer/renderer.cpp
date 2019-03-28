@@ -32,11 +32,7 @@ bool do_batching = false;
 namespace sxr {
 
 Renderer* gRenderer = nullptr;
-bool use_multiview= false;
-
-void Renderer::initializeStats() {
-    // TODO: this function will be filled in once we add draw time stats
-}
+bool gUseMultiview = false;
 
 Renderer::Renderer() : numberDrawCalls(0),
                        numberTriangles(0),
@@ -174,7 +170,7 @@ bool isRenderPassEqual(RenderData* rdata1, RenderData* rdata2){
  * Perform view frustum culling from a specific camera viewpoint
  */
 void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
-        ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector, bool isMultiview, int layer)
+        ShaderManager* shader_manager, std::vector<RenderData*>* render_data_vector)
 {
     std::vector<Node*> scene_objects;
     LightList& lights = scene->getLights();
@@ -188,7 +184,7 @@ void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
     rstate.uniforms.u_proj = camera->getProjectionMatrix();
     rstate.shader_manager = shader_manager;
     rstate.scene = scene;
-    rstate.is_multiview = isMultiview;
+    rstate.is_multiview = gUseMultiview;
     rstate.render_mask = camera->render_mask();
     rstate.uniforms.u_right = (rstate.render_mask & RenderData::RenderMaskBit::Right) ? 1 : 0;
     rstate.javaNode = javaNode;
@@ -209,7 +205,7 @@ void Renderer::cullFromCamera(Scene *scene, jobject javaNode, Camera* camera,
     //    frustum_cull(camera->owner_object()->transform()->position(), object, frustum, scene_objects, scene->get_frustum_culling(), 0);
     rstate.scene->lockColliders();
     rstate.scene->clearVisibleColliders();
-    frustum_cull(campos, scene, object, frustum, scene_objects, scene->get_frustum_culling(), 0, layer);
+//    frustum_cull(campos, scene, object, frustum, scene_objects, scene->get_frustum_culling(), 0, layer);
     rstate.scene->unlockColliders();
     if (DEBUG_RENDERER) {
         LOGD("FRUSTUM: end frustum culling for root %s\n", object->name().c_str());

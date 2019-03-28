@@ -35,8 +35,7 @@ namespace sxr {
  * @param texture RenderTexture to render to
  */
 RenderTarget::RenderTarget(RenderTexture* tex, bool is_multiview)
-: Component(RenderTarget::getComponentType()),mNextRenderTarget(nullptr),
-  mRenderTexture(tex),mRenderDataVector(std::make_shared< std::vector<RenderData*>>())
+    : Component(RenderTarget::getComponentType()), mRenderTexture(tex)
 {
     mRenderState.is_shadow = false;
     mRenderState.shadow_map = nullptr;
@@ -70,7 +69,7 @@ void RenderTarget::endRendering(Renderer *renderer) {
     mRenderTexture->endRendering(renderer);
 }
 RenderTarget::RenderTarget(Scene* scene)
-: Component(RenderTarget::getComponentType()), mNextRenderTarget(nullptr), mRenderTexture(nullptr),mRenderDataVector(std::make_shared< std::vector<RenderData*>>()){
+: Component(RenderTarget::getComponentType()) {
     mRenderState.is_shadow = false;
     mRenderState.shadow_map = nullptr;
     mRenderState.material_override = NULL;
@@ -80,7 +79,8 @@ RenderTarget::RenderTarget(Scene* scene)
 }
 
 RenderTarget::RenderTarget(Scene* scene, int defaultViewportW, int defaultViewportH)
-        : Component(RenderTarget::getComponentType()), mNextRenderTarget(nullptr), mRenderTexture(nullptr),mRenderDataVector(std::make_shared< std::vector<RenderData*>>()){
+        : Component(RenderTarget::getComponentType())
+{
     mRenderState.is_shadow = false;
     mRenderState.shadow_map = nullptr;
     mRenderState.material_override = NULL;
@@ -90,24 +90,13 @@ RenderTarget::RenderTarget(Scene* scene, int defaultViewportW, int defaultViewpo
     mRenderState.viewportHeight = defaultViewportH;
 }
 
-RenderTarget::RenderTarget(RenderTexture* tex, const RenderTarget* source)
-        : Component(RenderTarget::getComponentType()),mNextRenderTarget(nullptr),
-          mRenderTexture(tex), mRenderDataVector(source->mRenderDataVector)
-{
-    mRenderState.is_shadow = false;
-    mRenderState.shadow_map = nullptr;
-    mRenderState.material_override = NULL;
-    mRenderState.is_multiview = false;
-    mRenderState.sampleCount = mRenderTexture->getSampleCount();
-}
 /**
  * Constructs an empty render target without a render texture.
  * This component will not render anything until a RenderTexture
  * is provided.
  */
 RenderTarget::RenderTarget()
-:   Component(RenderTarget::getComponentType()),
-    mRenderTexture(nullptr),mNextRenderTarget(nullptr), mRenderDataVector(std::make_shared< std::vector<RenderData*>>())
+:   Component(RenderTarget::getComponentType())
 {
     mRenderState.is_multiview = false;
     mRenderState.shadow_map = nullptr;
@@ -116,11 +105,9 @@ RenderTarget::RenderTarget()
 }
 
 void RenderTarget::cullFromCamera(Scene* scene, jobject javaNode, Camera* camera, Renderer* renderer, ShaderManager* shader_manager){
-    constexpr bool RENDERTARGET_STEREO = false;
-    constexpr int LAYER_DEFAULT = -1;
-    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector.get(), RENDERTARGET_STEREO, LAYER_DEFAULT);
+    renderer->cullFromCamera(scene, javaNode, camera,shader_manager, mRenderDataVector);
     scene->getLights().shadersRebuilt();
-    renderer->state_sort(mRenderDataVector.get());
+    renderer->state_sort(&mRenderDataVector[Renderer::LAYER_NORMAL]);
 }
 
 RenderTarget::~RenderTarget()

@@ -129,7 +129,7 @@ RenderTextureInfo *SXRActivity::getRenderTextureInfo(int eye, int index) {
     renderTextureInfo->fboHeight = fbo.getHeight();
     renderTextureInfo->fboWidth = fbo.getWidth();
     renderTextureInfo->multisamples = mMultisamplesConfiguration;
-    renderTextureInfo->useMultiview = use_multiview;
+    renderTextureInfo->useMultiview = gUseMultiview;
     renderTextureInfo->texId = fbo.getColorTexId(index);
     renderTextureInfo->viewport[0] = x;
     renderTextureInfo->viewport[1] = y;
@@ -208,9 +208,9 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
 
     const char *extensions = (const char *) glGetString(GL_EXTENSIONS);
     if (multiview && std::strstr(extensions, "GL_OVR_multiview2") != NULL) {
-        use_multiview = true;
+        gUseMultiview = true;   //@todo for others
     }
-    if (multiview && !use_multiview) {
+    if (multiview && !gUseMultiview) {
         std::string error = "Multiview is not supported by your device";
         LOGE(" Multiview is not supported by your device");
         throw error;
@@ -218,7 +218,7 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
 
     clampToBorderSupported_ = nullptr != std::strstr(extensions, "GL_EXT_texture_border_clamp");
 
-    for (int eye = 0; eye < (use_multiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX); eye++) {
+    for (int eye = 0; eye < (gUseMultiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX); eye++) {
         frameBuffer_[eye].create(mColorTextureFormatConfiguration, mWidthConfiguration,
                                  mHeightConfiguration, mMultisamplesConfiguration,
                                  mResolveDepthConfiguration,
@@ -238,7 +238,7 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
     configurationHelper_.getSceneViewport(env, x, y, width, height);
 
     const int cnt = vrapi_GetTextureSwapChainLength(cursorBuffer_->mColorTextureSwapChain);
-    const int eyeCount = use_multiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX;
+    const int eyeCount = gUseMultiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX;
     for (int i = 0; i < cnt; ++i) {
         for (int j = 0; j < eyeCount; ++j) {
             FrameBufferObject fbo = cursorBuffer_[j];
@@ -248,7 +248,7 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
             renderTextureInfo.fboHeight = fbo.getHeight();
             renderTextureInfo.fboWidth = fbo.getWidth();
             renderTextureInfo.multisamples = mMultisamplesConfiguration;
-            renderTextureInfo.useMultiview = use_multiview;
+            renderTextureInfo.useMultiview = gUseMultiview;
             renderTextureInfo.texId = fbo.getColorTexId(i);
             renderTextureInfo.viewport[0] = x;
             renderTextureInfo.viewport[1] = y;
@@ -256,7 +256,7 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
             renderTextureInfo.viewport[3] = fbo.getWidth();
 
             mCursorRenderTextures[j][i] = Renderer::getInstance()->createRenderTexture(renderTextureInfo);
-            mCursorRenderTarget[j][i] = Renderer::getInstance()->createRenderTarget(mCursorRenderTextures[j][i], use_multiview);
+            mCursorRenderTarget[j][i] = Renderer::getInstance()->createRenderTarget(mCursorRenderTextures[j][i], gUseMultiview);
         }
     }
 
@@ -278,7 +278,7 @@ void SXRActivity::onSurfaceChanged(JNIEnv &env, jobject jsurface) {
 }
 
 void SXRActivity::copyVulkanTexture(int texSwapChainIndex, int eye){
-    RenderTarget* renderTarget = gRenderer->getRenderTarget(texSwapChainIndex, use_multiview ? 2 : eye);
+    RenderTarget* renderTarget = gRenderer->getRenderTarget(texSwapChainIndex, gUseMultiview ? 2 : eye);
     reinterpret_cast<VulkanRenderer*>(gRenderer)->renderToOculus(renderTarget);
 
     glBindTexture(GL_TEXTURE_2D,vrapi_GetTextureSwapChainHandle(frameBuffer_[eye].mColorTextureSwapChain, texSwapChainIndex));
@@ -307,7 +307,7 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
 
     ovrLayerProjection2 layers[2] = { vrapi_DefaultLayerProjection2(), vrapi_DefaultLayerProjection2() };
 
-    const int eyeCount = use_multiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX;
+    const int eyeCount = gUseMultiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX;
     for (int eye = 0; eye < eyeCount; eye++) {
         auto& eyeLayer = layers[0].Textures[eye];
 
@@ -360,7 +360,7 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
 
     for (int eye = 0; eye < eyeCount; eye++) {
         int textureSwapChainIndex = frameBuffer_[eye].mTextureSwapChainIndex;
-        RenderTarget *renderTarget = renderer->getRenderTarget(textureSwapChainIndex, use_multiview ? EYE::MULTIVIEW : eye);
+        RenderTarget *renderTarget = renderer->getRenderTarget(textureSwapChainIndex, gUseMultiview ? EYE::MULTIVIEW : eye);
         Camera *centerCamera = static_cast<Camera *>(cameraRig_->center_camera());
 
         if (0 == eye) {
@@ -368,14 +368,9 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
 
             //capture3DScreenShot(renderTarget, false);
 
-            renderer->cullFromCamera(mainScene, javaMainScene, centerCamera,
-                                     mMaterialShaderManager, &mRenderDataVector[0],
-                                     use_multiview, LAYER_NORMAL);
+            renderer->cullFromCamera(mainScene, javaMainScene, centerCamera, mMaterialShaderManager, mRenderDataVector);
             renderer->state_sort(&mRenderDataVector[0]);
 
-            renderer->cullFromCamera(mainScene, javaMainScene, centerCamera,
-                                     mMaterialShaderManager, &mRenderDataVector[1],
-                                     use_multiview, LAYER_CURSOR);
             cursorLayerSize = mRenderDataVector[1].size();
             if (cursorLayerSize) {
                 renderer->state_sort(&mRenderDataVector[1]);
@@ -504,7 +499,7 @@ void SXRActivity::onDrawFrame(jobject jViewManager, jobject javaMainScene)
         LOGV("SXRActivity::leaveVrMode");
         Renderer::resetInstance();
         if (nullptr != oculusMobile_) {
-            for (int eye = 0; eye < (use_multiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX); eye++) {
+            for (int eye = 0; eye < (gUseMultiview ? 1 : VRAPI_FRAME_LAYER_EYE_MAX); eye++) {
                 frameBuffer_[eye].destroy();
                 cursorBuffer_[eye].destroy();
             }

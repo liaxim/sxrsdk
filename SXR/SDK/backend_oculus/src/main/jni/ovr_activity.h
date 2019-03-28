@@ -19,6 +19,7 @@
 
 #include <shaders/shader_manager.h>
 #include <objects/textures/render_texture.h>
+#include <engine/renderer/renderer.h>
 #include "ovr_gear_controller.h"
 #include "ovr_framebufferobject.h"
 #include "objects/components/camera.h"
@@ -84,7 +85,7 @@ class RenderTarget;
         ShaderManager* mMaterialShaderManager = nullptr;
         RenderTexture* mPostEffectRenderTextureA = nullptr;
         RenderTexture* mPostEffectRenderTextureB = nullptr;
-        std::vector<RenderData*> mRenderDataVector[2];
+        std::vector<RenderData*> mRenderDataVector[Renderer::MAX_LAYERS];
 
         RenderTexture* mCursorRenderTextures[VRAPI_FRAME_LAYER_EYE_MAX][4];
         RenderTarget* mCursorRenderTarget[VRAPI_FRAME_LAYER_EYE_MAX][4];
@@ -113,8 +114,6 @@ class RenderTarget;
 
         static constexpr bool RENDERTARGET_STEREO = false;
         static constexpr bool RENDERTARGET_MULTIVIEW = true;
-        static constexpr int LAYER_NORMAL = 0;
-        static constexpr int LAYER_CURSOR = 1;
     };
 
 }
