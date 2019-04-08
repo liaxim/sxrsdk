@@ -111,17 +111,17 @@ class SXRRenderBundle {
 
         return mMultiviewRenderTarget[index];
     }
-    public SXRRenderTexture getEyeCapturePostEffectRenderTextureA(){
-        if(mEyeCapturePostEffectRenderTextureA == null)
-            mEyeCapturePostEffectRenderTextureA  = new SXRRenderTexture(mSXRContext, mWidth , mHeight, mSampleCount, 1);
-        return mEyeCapturePostEffectRenderTextureA;
-    }
-
     public SXRRenderTexture getEyeCapturePostEffectRenderTextureB(){
         if(mEyeCapturePostEffectRenderTextureB == null)
             mEyeCapturePostEffectRenderTextureB = new SXRRenderTexture(mSXRContext, mWidth , mHeight, mSampleCount, 1);
 
         return mEyeCapturePostEffectRenderTextureB;
+    }
+
+    public SXRRenderTexture getEyeCapturePostEffectRenderTextureA(){
+        if(mEyeCapturePostEffectRenderTextureA == null)
+            mEyeCapturePostEffectRenderTextureA  = new SXRRenderTexture(mSXRContext, mWidth , mHeight, mSampleCount, 1);
+        return mEyeCapturePostEffectRenderTextureA;
     }
     public SXRShaderManager getShaderManager() {
         return mShaderManager;

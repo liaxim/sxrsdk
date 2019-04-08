@@ -366,7 +366,9 @@ bool GLRenderTexture::readRenderResult(uint8_t *readback_buffer, long capacity) 
         return false;
     }
 
+    bind();
     glReadPixels(0, 0, image->getWidth(), image->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, readback_buffer);
+    unbind();
     return true;
 }
 
