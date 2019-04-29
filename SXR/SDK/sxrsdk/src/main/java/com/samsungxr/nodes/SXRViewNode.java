@@ -22,6 +22,10 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -61,6 +65,11 @@ import com.samsungxr.IViewEvents;
 import com.samsungxr.io.SXRControllerType;
 import com.samsungxr.shaders.SXROESConvolutionShader;
 import com.samsungxr.utility.Log;
+
+import org.joml.Vector2f;
+
+import static android.content.Context.SENSOR_SERVICE;
+import static com.samsungxr.utility.Log.i;
 
 /**
  * This class represents a {@linkplain SXRNode Scene object} that shows a {@link View}
@@ -220,6 +229,10 @@ public class SXRViewNode extends SXRNode {
                 }
             }
         });
+
+        final Activity activity = gvrContext.getActivity();
+        SensorManager sensorManager=(SensorManager)activity.getSystemService(SENSOR_SERVICE);
+        sensorManager.registerListener(mSensorEventListener, sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER), SensorManager.SENSOR_DELAY_NORMAL);
     }
 
     private void createRenderData(SXRContext gvrContext) {
@@ -445,6 +458,22 @@ public class SXRViewNode extends SXRNode {
             return false;
         }
     }
+
+    float ax,ay,az;   // these are the acceleration in x,y and z axis
+    private final SensorEventListener mSensorEventListener = new SensorEventListener() {
+        @Override
+        public void onAccuracyChanged(Sensor arg0, int arg1) {
+        }
+
+        @Override
+        public void onSensorChanged(SensorEvent event) {
+            if (event.sensor.getType()==Sensor.TYPE_ACCELEROMETER){
+                ax=event.values[0];
+                ay=event.values[1];
+                az=event.values[2];
+            }
+        }
+    };
 
     /**
      * Internal class to draw the Android view into canvas at UI thread and
@@ -735,10 +764,11 @@ public class SXRViewNode extends SXRNode {
             }
         }
 
+        final Vector2f up = new Vector2f(0.0f, 9.8f).normalize();
+        final Vector2f v = new Vector2f();
         public void onDrag(SXRPicker.SXRPickedObject pickInfo)
         {
-            if ((pickInfo.motionEvent != null) && (pickInfo.hitObject == mSelected))
-            {
+            if ((pickInfo.motionEvent != null) && (pickInfo.hitObject == mSelected)) {
                 final MotionEvent event = pickInfo.motionEvent;
                 final float[] texCoords = pickInfo.getTextureCoords();
                 float x = event.getRawX() - getTop();
@@ -750,8 +780,7 @@ public class SXRViewNode extends SXRNode {
                  * these events are all zero.
                  */
                 if ((pickInfo.getPicker().getController().getControllerType() == SXRControllerType.CONTROLLER) &&
-                    (event.getButtonState() == MotionEvent.BUTTON_SECONDARY))
-                {
+                        (event.getButtonState() == MotionEvent.BUTTON_SECONDARY)) {
                     x = texCoords[0] * getWidth();
                     y = texCoords[1] * getHeight();
                 }
@@ -760,12 +789,18 @@ public class SXRViewNode extends SXRNode {
                  * Here we make the event location relative to the hit point where
                  * the button went down.
                  */
-                else
-                {
+                else {
                     x += mHitX - mActionDownX;
                     y += mHitY - mActionDownY;
                 }
-                dispatchPickerInputEvent(event, x, y);
+
+                v.set(ax, ay).normalize();
+                final float phi = (float) Math.acos(up.dot(v));
+                if (Math.toDegrees(phi) > 45) {
+                    dispatchPickerInputEvent(event, y, x);
+                } else {
+                    dispatchPickerInputEvent(event, x, y);
+                }
             }
         }
 
