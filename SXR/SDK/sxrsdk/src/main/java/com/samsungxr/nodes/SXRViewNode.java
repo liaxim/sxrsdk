@@ -735,8 +735,8 @@ public class SXRViewNode extends SXRNode {
                 mHitX = texCoords[0] * getWidth();
                 mHitY = texCoords[1] * getHeight();
                 i("mmarinov", "onTouchStart raw " + event.getRawX() + " " + event.getRawY() + " | " + getLeft() + ", " + getTop());
-                mActionDownY = -(event.getRawX() - getLeft());
-                mActionDownX = event.getRawY() - getTop();
+                mActionDownX = event.getRawX() - getLeft();
+                mActionDownY = event.getRawY() - getTop();
                 mSelected = sceneObject;
                 dispatchPickerInputEvent(event, mHitX, mHitY);
                 i("mmarinov", "onTouchStart " + mHitX + " " + mHitY + " | " + mActionDownX + " " + mActionDownY);
@@ -775,7 +775,6 @@ public class SXRViewNode extends SXRNode {
                 final float[] texCoords = pickInfo.getTextureCoords();
                 float xx = event.getRawX() - getTop();
                 float yy = event.getRawY() - getLeft();
-                i("mmarinov", "onDrag raw " + xx + " " + yy);
 
                 v.set(ax, ay).normalize();
                 final float phi = (float) Math.acos(up.dot(v));
@@ -801,17 +800,20 @@ public class SXRViewNode extends SXRNode {
                  * the button went down.
                  */
                 else {
-                    i("mmarinov", "onDrag adjust");
                     final float actionDownX = cosphi*mActionDownX - sinphi*mActionDownY;
                     final float actionDownY = sinphi*mActionDownX + cosphi*mActionDownY;
 
-                    x += mHitX - actionDownX;
-                    y += mHitY - actionDownY;
+                    float hitX = cosphi*mHitX - sinphi*mHitY;
+                    float hitY = sinphi*mHitX + cosphi*mHitY;
+
+                    x += hitX - actionDownX;
+                    y += hitY - actionDownY;
                 }
 
 //                if (Math.toDegrees(phi) > 45) {
 //                    dispatchPickerInputEvent(event, y, x);
 //                } else {
+                i("mmarinov", "onDrag " + x + " " + y);
                     dispatchPickerInputEvent(event, x, y);
 //                }
             }
