@@ -734,10 +734,12 @@ public class SXRViewNode extends SXRNode {
 
                 mHitX = texCoords[0] * getWidth();
                 mHitY = texCoords[1] * getHeight();
-                mActionDownX = event.getRawX() - getLeft();
-                mActionDownY = event.getRawY() - getTop();
+                i("mmarinov", "onTouchStart raw " + event.getRawX() + " " + event.getRawY() + " | " + getLeft() + ", " + getTop());
+                mActionDownY = -(event.getRawX() - getLeft());
+                mActionDownX = event.getRawY() - getTop();
                 mSelected = sceneObject;
                 dispatchPickerInputEvent(event, mHitX, mHitY);
+                i("mmarinov", "onTouchStart " + mHitX + " " + mHitY + " | " + mActionDownX + " " + mActionDownY);
             }
         }
 
@@ -771,8 +773,17 @@ public class SXRViewNode extends SXRNode {
             if ((pickInfo.motionEvent != null) && (pickInfo.hitObject == mSelected)) {
                 final MotionEvent event = pickInfo.motionEvent;
                 final float[] texCoords = pickInfo.getTextureCoords();
-                float x = event.getRawX() - getTop();
-                float y = event.getRawY() - getLeft();
+                float xx = event.getRawX() - getTop();
+                float yy = event.getRawY() - getLeft();
+                i("mmarinov", "onDrag raw " + xx + " " + yy);
+
+                v.set(ax, ay).normalize();
+                final float phi = (float) Math.acos(up.dot(v));
+                float cosphi = (float)Math.cos(phi);
+                float sinphi = (float)Math.sin(phi);
+
+                float x = cosphi*xx - sinphi*yy;
+                float y = sinphi*xx + cosphi*yy;
 
                 /*
                  * When we get events from the Gear controller we replace the location
@@ -790,17 +801,19 @@ public class SXRViewNode extends SXRNode {
                  * the button went down.
                  */
                 else {
-                    x += mHitX - mActionDownX;
-                    y += mHitY - mActionDownY;
+                    i("mmarinov", "onDrag adjust");
+                    final float actionDownX = cosphi*mActionDownX - sinphi*mActionDownY;
+                    final float actionDownY = sinphi*mActionDownX + cosphi*mActionDownY;
+
+                    x += mHitX - actionDownX;
+                    y += mHitY - actionDownY;
                 }
 
-                v.set(ax, ay).normalize();
-                final float phi = (float) Math.acos(up.dot(v));
-                if (Math.toDegrees(phi) > 45) {
-                    dispatchPickerInputEvent(event, y, x);
-                } else {
+//                if (Math.toDegrees(phi) > 45) {
+//                    dispatchPickerInputEvent(event, y, x);
+//                } else {
                     dispatchPickerInputEvent(event, x, y);
-                }
+//                }
             }
         }
 

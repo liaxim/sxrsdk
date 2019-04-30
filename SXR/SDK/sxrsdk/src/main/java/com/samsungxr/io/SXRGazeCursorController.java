@@ -168,6 +168,7 @@ final public class SXRGazeCursorController extends SXRCursorController
             setPosition(x, y, -mDisplayDepth);
         }
 
+        event.setLocation(event.getY(), event.getX());
         setMotionEvent(event);
         invalidate();
     }
